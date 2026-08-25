@@ -39,3 +39,12 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# AI agent skills (herramientas locales, no forman parte de la app)
+/.agents/
+/.codex/
+/.claude/skills/
+skills-lock.json
+
+# Claude Code: config local de permisos (no es del proyecto)
+/.claude/settings.local.json
