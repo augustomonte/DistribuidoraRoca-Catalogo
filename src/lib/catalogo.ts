@@ -3,11 +3,14 @@ import type { Categoria, ProductoVista } from "@/types";
 
 export const PRODUCTOS_POR_PAGINA = 50;
 
+export type OrdenCatalogo = "nombre_asc" | "nombre_desc";
+
 export interface FiltrosCatalogo {
   pagina?: number;
   categoriaId?: number;
   marca?: string;
   busqueda?: string;
+  orden?: OrdenCatalogo;
 }
 
 export async function obtenerProductos({
@@ -15,6 +18,7 @@ export async function obtenerProductos({
   categoriaId,
   marca,
   busqueda,
+  orden = "nombre_asc",
 }: FiltrosCatalogo): Promise<{ productos: ProductoVista[]; total: number }> {
   const supabase = await createClient();
 
@@ -24,7 +28,7 @@ export async function obtenerProductos({
   let query = supabase
     .from("productos_vista")
     .select("*", { count: "exact" })
-    .order("nombre", { ascending: true })
+    .order("nombre", { ascending: orden === "nombre_asc" })
     .range(desde, hasta);
 
   if (categoriaId) {

@@ -2,6 +2,7 @@ import {
   obtenerMarcas,
   obtenerProductos,
   PRODUCTOS_POR_PAGINA,
+  type OrdenCatalogo,
 } from "@/lib/catalogo";
 import { ProductoCard } from "@/components/catalogo/ProductoCard";
 import { Filtros } from "@/components/catalogo/Filtros";
@@ -13,6 +14,7 @@ export interface CatalogoSearchParams {
   categoria?: string;
   marca?: string;
   q?: string;
+  orden?: string;
 }
 
 export async function CatalogoView({
@@ -24,6 +26,8 @@ export async function CatalogoView({
   const categoriaId = searchParams.categoria
     ? Number(searchParams.categoria)
     : undefined;
+  const orden: OrdenCatalogo =
+    searchParams.orden === "nombre_desc" ? "nombre_desc" : "nombre_asc";
 
   const [{ productos, total }, marcas] = await Promise.all([
     obtenerProductos({
@@ -31,6 +35,7 @@ export async function CatalogoView({
       categoriaId,
       marca: searchParams.marca,
       busqueda: searchParams.q,
+      orden,
     }),
     obtenerMarcas(),
   ]);

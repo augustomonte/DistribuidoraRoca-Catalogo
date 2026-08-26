@@ -48,6 +48,9 @@ export type Database = {
           razon_social: string | null;
           telefono: string | null;
           dni: string | null;
+          direccion: string | null;
+          ciudad: string | null;
+          provincia: string | null;
           creado_por: string | null;
           activo: boolean;
           created_at: string;
@@ -60,6 +63,9 @@ export type Database = {
           razon_social?: string | null;
           telefono?: string | null;
           dni?: string | null;
+          direccion?: string | null;
+          ciudad?: string | null;
+          provincia?: string | null;
           creado_por?: string | null;
           activo?: boolean;
           created_at?: string;
@@ -72,6 +78,9 @@ export type Database = {
           razon_social?: string | null;
           telefono?: string | null;
           dni?: string | null;
+          direccion?: string | null;
+          ciudad?: string | null;
+          provincia?: string | null;
           creado_por?: string | null;
           activo?: boolean;
           created_at?: string;

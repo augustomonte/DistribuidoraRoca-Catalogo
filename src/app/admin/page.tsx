@@ -1,22 +1,42 @@
 import Link from "next/link";
-import { obtenerProductosAdmin, ADMIN_PRODUCTOS_POR_PAGINA } from "@/lib/admin";
+import {
+  obtenerProductosAdmin,
+  ADMIN_PRODUCTOS_POR_PAGINA,
+  type OrdenProductosAdmin,
+} from "@/lib/admin";
 import { obtenerMarcas } from "@/lib/marcas";
 import { ProductosTable } from "@/components/admin/ProductosTable";
+import { OrdenSelect } from "@/components/admin/OrdenSelect";
 import { Paginacion } from "@/components/catalogo/Paginacion";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 
+const ORDENES_VALIDOS: OrdenProductosAdmin[] = [
+  "reciente",
+  "nombre_asc",
+  "nombre_desc",
+];
+
 export default async function AdminProductosPage({
   searchParams,
 }: {
-  searchParams: Promise<{ pagina?: string; q?: string; marca?: string }>;
+  searchParams: Promise<{
+    pagina?: string;
+    q?: string;
+    marca?: string;
+    orden?: string;
+  }>;
 }) {
-  const { pagina: paginaParam, q, marca: marcaParam } = await searchParams;
+  const { pagina: paginaParam, q, marca: marcaParam, orden: ordenParam } =
+    await searchParams;
   const pagina = Math.max(1, Number(paginaParam) || 1);
   const marcaId = marcaParam ? Number(marcaParam) : undefined;
+  const orden = ORDENES_VALIDOS.includes(ordenParam as OrdenProductosAdmin)
+    ? (ordenParam as OrdenProductosAdmin)
+    : "reciente";
 
   const [{ productos, total }, marcas] = await Promise.all([
-    obtenerProductosAdmin({ pagina, busqueda: q, marcaId }),
+    obtenerProductosAdmin({ pagina, busqueda: q, marcaId, orden }),
     marcaId ? obtenerMarcas() : Promise.resolve([]),
   ]);
   const totalPaginas = Math.ceil(total / ADMIN_PRODUCTOS_POR_PAGINA);
@@ -45,17 +65,22 @@ export default async function AdminProductosPage({
         </div>
       )}
 
-      <form className="mb-4 flex max-w-sm gap-2">
-        {marcaId && <input type="hidden" name="marca" value={marcaId} />}
-        <Input
-          name="q"
-          placeholder="Buscar por nombre o código..."
-          defaultValue={q}
-        />
-        <Button type="submit" variante="outline">
-          Buscar
-        </Button>
-      </form>
+      <div className="mb-4 flex flex-wrap items-center gap-2">
+        <form className="flex max-w-sm flex-1 gap-2">
+          {marcaId && <input type="hidden" name="marca" value={marcaId} />}
+          {ordenParam && <input type="hidden" name="orden" value={ordenParam} />}
+          <Input
+            name="q"
+            placeholder="Buscar por nombre o código..."
+            defaultValue={q}
+          />
+          <Button type="submit" variante="outline">
+            Buscar
+          </Button>
+        </form>
+
+        <OrdenSelect />
+      </div>
 
       <p className="mb-4 text-sm text-roca-negro/50">
         {total} producto{total === 1 ? "" : "s"} en total
@@ -66,7 +91,7 @@ export default async function AdminProductosPage({
       <Paginacion
         paginaActual={pagina}
         totalPaginas={totalPaginas}
-        searchParams={{ q, marca: marcaParam }}
+        searchParams={{ q, marca: marcaParam, orden: ordenParam }}
       />
     </div>
   );

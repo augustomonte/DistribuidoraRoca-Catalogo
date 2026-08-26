@@ -25,7 +25,10 @@ export function PerfilesTable({
           <tr>
             <th className="px-4 py-3">Nombre</th>
             {columnaExtra === "razon_social" && (
-              <th className="px-4 py-3">Razón social</th>
+              <>
+                <th className="px-4 py-3">Razón social</th>
+                <th className="px-4 py-3">Ubicación</th>
+              </>
             )}
             {columnaExtra === "vendedor" && (
               <th className="px-4 py-3">Creado por</th>
@@ -45,7 +48,16 @@ export function PerfilesTable({
                 {perfil.nombre} {perfil.apellido ?? ""}
               </td>
               {columnaExtra === "razon_social" && (
-                <td className="px-4 py-3">{perfil.razon_social ?? "—"}</td>
+                <>
+                  <td className="px-4 py-3">{perfil.razon_social ?? "—"}</td>
+                  <td className="px-4 py-3 text-roca-negro/70">
+                    {perfil.ciudad || perfil.provincia
+                      ? [perfil.ciudad, perfil.provincia]
+                          .filter(Boolean)
+                          .join(", ")
+                      : "—"}
+                  </td>
+                </>
               )}
               {columnaExtra === "vendedor" && (
                 <td className="px-4 py-3">

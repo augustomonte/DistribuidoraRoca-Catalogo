@@ -7,14 +7,18 @@ export type ProductoConMarca = Producto & {
   marcas: { nombre: string } | null;
 };
 
+export type OrdenProductosAdmin = "reciente" | "nombre_asc" | "nombre_desc";
+
 export async function obtenerProductosAdmin({
   pagina = 1,
   busqueda,
   marcaId,
+  orden = "reciente",
 }: {
   pagina?: number;
   busqueda?: string;
   marcaId?: number;
+  orden?: OrdenProductosAdmin;
 }): Promise<{ productos: ProductoConMarca[]; total: number }> {
   const supabase = await createClient();
 
@@ -24,8 +28,15 @@ export async function obtenerProductosAdmin({
   let query = supabase
     .from("productos")
     .select("*, marcas(nombre)", { count: "exact" })
-    .order("created_at", { ascending: false })
     .range(desde, hasta);
+
+  if (orden === "nombre_asc") {
+    query = query.order("nombre", { ascending: true });
+  } else if (orden === "nombre_desc") {
+    query = query.order("nombre", { ascending: false });
+  } else {
+    query = query.order("created_at", { ascending: false });
+  }
 
   if (marcaId) {
     query = query.eq("marca_id", marcaId);

@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getPerfilActual } from "@/lib/auth";
+import { PROVINCIAS_ARGENTINA } from "@/lib/provincias";
 
 export interface UsuarioFormState {
   error?: string;
@@ -98,11 +99,20 @@ export async function crearFerreteria(
   const razonSocial = String(formData.get("razon_social") ?? "").trim();
   const nombre = String(formData.get("nombre") ?? "").trim();
   const telefono = String(formData.get("telefono") ?? "").trim();
+  const direccion = String(formData.get("direccion") ?? "").trim();
+  const ciudad = String(formData.get("ciudad") ?? "").trim();
+  const provincia = String(formData.get("provincia") ?? "").trim();
 
   const errorCredenciales = validarCredenciales(email, password);
   if (errorCredenciales) return { error: errorCredenciales };
   if (!razonSocial) return { error: "La razón social es obligatoria." };
   if (!nombre) return { error: "El nombre de contacto es obligatorio." };
+  if (
+    provincia &&
+    !(PROVINCIAS_ARGENTINA as readonly string[]).includes(provincia)
+  ) {
+    return { error: "La provincia seleccionada no es válida." };
+  }
 
   const admin = createAdminClient();
 
@@ -125,6 +135,9 @@ export async function crearFerreteria(
     nombre,
     razon_social: razonSocial,
     telefono: telefono || null,
+    direccion: direccion || null,
+    ciudad: ciudad || null,
+    provincia: provincia || null,
     creado_por: vendedor.id,
     activo: true,
   });

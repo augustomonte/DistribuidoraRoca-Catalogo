@@ -3,8 +3,10 @@
 import { useActionState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/Input";
+import { Select } from "@/components/ui/Select";
 import { Button } from "@/components/ui/Button";
 import { crearFerreteria } from "@/lib/actions/usuarios";
+import { PROVINCIAS_ARGENTINA } from "@/lib/provincias";
 
 export function CrearFerreteriaForm() {
   const router = useRouter();
@@ -64,6 +66,35 @@ export function CrearFerreteriaForm() {
             minLength={6}
             required
           />
+        </div>
+        <div className="flex flex-col gap-1 sm:col-span-2">
+          <label htmlFor="f_direccion" className="text-sm font-medium">
+            Dirección
+          </label>
+          <Input
+            id="f_direccion"
+            name="direccion"
+            placeholder="Calle y número"
+          />
+        </div>
+        <div className="flex flex-col gap-1">
+          <label htmlFor="f_ciudad" className="text-sm font-medium">
+            Ciudad
+          </label>
+          <Input id="f_ciudad" name="ciudad" />
+        </div>
+        <div className="flex flex-col gap-1">
+          <label htmlFor="f_provincia" className="text-sm font-medium">
+            Provincia
+          </label>
+          <Select id="f_provincia" name="provincia" defaultValue="">
+            <option value="">Sin especificar</option>
+            {PROVINCIAS_ARGENTINA.map((p) => (
+              <option key={p} value={p}>
+                {p}
+              </option>
+            ))}
+          </Select>
         </div>
       </div>
 
