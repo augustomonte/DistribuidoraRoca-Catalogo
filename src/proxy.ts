@@ -26,9 +26,13 @@ export async function proxy(request: NextRequest) {
   }
 
   if (user) {
+    // Traemos el perfil completo (no solo rol/activo) para poder pasarlo
+    // a los Server Components vía header y evitar que vuelvan a
+    // consultarlo ellos mismos (getPerfilActual hacía la misma consulta
+    // dos veces en cada navegación).
     const { data: perfil } = await supabase
       .from("perfiles")
-      .select("rol, activo")
+      .select("*")
       .eq("id", user.id)
       .single();
 
@@ -56,6 +60,18 @@ export async function proxy(request: NextRequest) {
       url.search = "";
       return NextResponse.redirect(url);
     }
+
+    // Reenviamos el perfil ya resuelto como header interno (se sobreescribe
+    // acá, así que un cliente no puede falsificarlo) para que
+    // getPerfilActual() lo lea directo sin volver a golpear Supabase.
+    const headers = new Headers(request.headers);
+    headers.set("x-perfil", JSON.stringify(perfil));
+
+    const response = NextResponse.next({ request: { headers } });
+    supabaseResponse.cookies.getAll().forEach((cookie) => {
+      response.cookies.set(cookie);
+    });
+    return response;
   }
 
   return supabaseResponse;

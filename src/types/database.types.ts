@@ -197,6 +197,17 @@ export type Database = {
         Args: Record<string, never>;
         Returns: RolUsuario;
       };
+      buscar_productos_ranked: {
+        Args: {
+          termino: string;
+          filtro_categoria_id?: number | null;
+          filtro_marca?: string | null;
+          orden_alfabetico?: string;
+          limite?: number;
+          desplazamiento?: number;
+        };
+        Returns: Database["public"]["Views"]["productos_vista"]["Row"][];
+      };
     };
     Enums: {
       rol_usuario: RolUsuario;
