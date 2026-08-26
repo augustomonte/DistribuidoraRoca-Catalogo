@@ -8,7 +8,7 @@ const NAV_POR_ROL: Record<Perfil["rol"], { href: string; label: string }[]> = {
     { href: "/admin", label: "Productos" },
     { href: "/admin/vendedores", label: "Vendedores" },
     { href: "/admin/ferreterias", label: "Ferreterías" },
-    { href: "/admin/categorias", label: "Categorías" },
+    { href: "/admin/marcas", label: "Marcas" },
     { href: "/catalogo", label: "Ver catálogo" },
   ],
   vendedor: [

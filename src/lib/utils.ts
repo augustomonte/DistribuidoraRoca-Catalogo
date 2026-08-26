@@ -15,10 +15,13 @@ export function formatearPrecio(precio: number): string {
   return `$ ${formateadorArs.format(precio)}`;
 }
 
-/** Formatea precio + IVA al estilo provelec.com.ar: "$ 3.247,02 + IVA 21%" */
+/**
+ * Formatea el precio (ya con el IVA incluido) junto a la alícuota
+ * correspondiente, a modo informativo: "$ 1.785,86 · IVA 21%"
+ */
 export function formatearPrecioConIva(
   precio: number,
   ivaPorcentaje: number
 ): string {
-  return `${formatearPrecio(precio)} + IVA ${ivaPorcentaje}%`;
+  return `${formatearPrecio(precio)} · IVA ${ivaPorcentaje}%`;
 }

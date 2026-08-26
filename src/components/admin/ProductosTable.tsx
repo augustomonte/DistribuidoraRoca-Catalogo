@@ -1,10 +1,14 @@
 import Link from "next/link";
-import { formatearPrecio } from "@/lib/utils";
+import { formatearPrecioConIva } from "@/lib/utils";
 import { alternarActivoProducto } from "@/lib/actions/productos";
 import { EliminarProductoBoton } from "@/components/admin/EliminarProductoBoton";
-import type { Producto } from "@/types";
+import type { ProductoConMarca } from "@/lib/admin";
 
-export function ProductosTable({ productos }: { productos: Producto[] }) {
+export function ProductosTable({
+  productos,
+}: {
+  productos: ProductoConMarca[];
+}) {
   if (productos.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-roca-negro/20 py-24 text-center text-roca-negro/50">
@@ -21,8 +25,7 @@ export function ProductosTable({ productos }: { productos: Producto[] }) {
             <th className="px-4 py-3">Código</th>
             <th className="px-4 py-3">Nombre</th>
             <th className="px-4 py-3">Marca</th>
-            <th className="px-4 py-3">P. Acordado</th>
-            <th className="px-4 py-3">P. Lista</th>
+            <th className="px-4 py-3">Precio Catálogo</th>
             <th className="px-4 py-3">Stock</th>
             <th className="px-4 py-3">Estado</th>
             <th className="px-4 py-3 text-right">Acciones</th>
@@ -40,12 +43,12 @@ export function ProductosTable({ productos }: { productos: Producto[] }) {
               <td className="px-4 py-3 font-medium text-roca-negro">
                 {producto.nombre}
               </td>
-              <td className="px-4 py-3">{producto.marca ?? "—"}</td>
+              <td className="px-4 py-3">{producto.marcas?.nombre ?? "—"}</td>
               <td className="px-4 py-3">
-                {formatearPrecio(producto.precio_acordado)}
-              </td>
-              <td className="px-4 py-3">
-                {formatearPrecio(producto.precio_lista2)}
+                {formatearPrecioConIva(
+                  producto.precio_lista2,
+                  producto.iva_porcentaje
+                )}
               </td>
               <td className="px-4 py-3">
                 {producto.stock_disponible ? "Sí" : "Sin stock"}

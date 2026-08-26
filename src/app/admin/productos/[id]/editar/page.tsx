@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { obtenerCategorias } from "@/lib/catalogo";
+import { obtenerCategorias, obtenerMarcas } from "@/lib/catalogo";
 import { obtenerProductoPorId } from "@/lib/admin";
 import { actualizarProducto } from "@/lib/actions/productos";
 import { ProductoForm } from "@/components/admin/ProductoForm";
@@ -10,9 +10,10 @@ export default async function EditarProductoPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const [producto, categorias] = await Promise.all([
+  const [producto, categorias, marcas] = await Promise.all([
     obtenerProductoPorId(id),
     obtenerCategorias(),
+    obtenerMarcas(),
   ]);
 
   if (!producto) notFound();
@@ -25,6 +26,7 @@ export default async function EditarProductoPage({
       <ProductoForm
         accion={actualizarProducto.bind(null, id)}
         categorias={categorias}
+        marcas={marcas}
         producto={producto}
       />
     </div>

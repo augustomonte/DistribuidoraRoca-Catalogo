@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { obtenerProductosAdmin, ADMIN_PRODUCTOS_POR_PAGINA } from "@/lib/admin";
+import { obtenerMarcas } from "@/lib/marcas";
 import { ProductosTable } from "@/components/admin/ProductosTable";
 import { Paginacion } from "@/components/catalogo/Paginacion";
 import { Button } from "@/components/ui/Button";
@@ -8,16 +9,18 @@ import { Input } from "@/components/ui/Input";
 export default async function AdminProductosPage({
   searchParams,
 }: {
-  searchParams: Promise<{ pagina?: string; q?: string }>;
+  searchParams: Promise<{ pagina?: string; q?: string; marca?: string }>;
 }) {
-  const { pagina: paginaParam, q } = await searchParams;
+  const { pagina: paginaParam, q, marca: marcaParam } = await searchParams;
   const pagina = Math.max(1, Number(paginaParam) || 1);
+  const marcaId = marcaParam ? Number(marcaParam) : undefined;
 
-  const { productos, total } = await obtenerProductosAdmin({
-    pagina,
-    busqueda: q,
-  });
+  const [{ productos, total }, marcas] = await Promise.all([
+    obtenerProductosAdmin({ pagina, busqueda: q, marcaId }),
+    marcaId ? obtenerMarcas() : Promise.resolve([]),
+  ]);
   const totalPaginas = Math.ceil(total / ADMIN_PRODUCTOS_POR_PAGINA);
+  const marcaActual = marcas.find((m) => m.id === marcaId);
 
   return (
     <div>
@@ -28,7 +31,22 @@ export default async function AdminProductosPage({
         </Link>
       </div>
 
+      {marcaId && (
+        <div className="mb-4 flex items-center gap-2 rounded-md bg-roca-rojo/10 px-3 py-2 text-sm text-roca-negro">
+          <span>
+            Filtrando por marca:{" "}
+            <span className="font-semibold">
+              {marcaActual?.nombre ?? `#${marcaId}`}
+            </span>
+          </span>
+          <Link href="/admin" className="text-roca-rojo underline">
+            Quitar filtro
+          </Link>
+        </div>
+      )}
+
       <form className="mb-4 flex max-w-sm gap-2">
+        {marcaId && <input type="hidden" name="marca" value={marcaId} />}
         <Input
           name="q"
           placeholder="Buscar por nombre o código..."
@@ -48,7 +66,7 @@ export default async function AdminProductosPage({
       <Paginacion
         paginaActual={pagina}
         totalPaginas={totalPaginas}
-        searchParams={{ q }}
+        searchParams={{ q, marca: marcaParam }}
       />
     </div>
   );

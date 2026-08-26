@@ -45,12 +45,27 @@ export function ProductoCard({
         <h3 className="line-clamp-2 text-sm font-medium text-roca-negro">
           {producto.nombre}
         </h3>
-        <p className="text-xs text-roca-negro/40">{producto.codigo}</p>
+        <p className="font-mono text-xs text-roca-negro/40">
+          {producto.codigo}
+        </p>
 
         <div className="mt-auto pt-2">
-          <p className="text-base font-bold text-roca-negro">
+          <p className="flex items-center gap-1.5 text-base font-bold text-roca-negro">
             {formatearPrecioConIva(producto.precio, producto.iva_porcentaje)}
+            {producto.nota_iva === "3" && (
+              <span
+                title="Nota 3"
+                className="text-sm font-normal text-roca-negro/40"
+              >
+                ③
+              </span>
+            )}
           </p>
+          {producto.unidad_venta && (
+            <p className="text-xs text-roca-negro/50">
+              por {producto.unidad_venta.toLowerCase()}
+            </p>
+          )}
         </div>
       </div>
     </div>

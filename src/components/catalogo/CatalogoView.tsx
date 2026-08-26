@@ -1,5 +1,4 @@
 import {
-  obtenerCategorias,
   obtenerMarcas,
   obtenerProductos,
   PRODUCTOS_POR_PAGINA,
@@ -26,14 +25,13 @@ export async function CatalogoView({
     ? Number(searchParams.categoria)
     : undefined;
 
-  const [{ productos, total }, categorias, marcas] = await Promise.all([
+  const [{ productos, total }, marcas] = await Promise.all([
     obtenerProductos({
       pagina,
       categoriaId,
       marca: searchParams.marca,
       busqueda: searchParams.q,
     }),
-    obtenerCategorias(),
     obtenerMarcas(),
   ]);
 
@@ -41,7 +39,7 @@ export async function CatalogoView({
 
   return (
     <div>
-      <Filtros categorias={categorias} marcas={marcas} />
+      <Filtros marcas={marcas} />
 
       <p className="mb-4 text-sm text-roca-negro/50">
         {total} producto{total === 1 ? "" : "s"} encontrado

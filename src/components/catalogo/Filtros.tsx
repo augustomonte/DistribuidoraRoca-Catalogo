@@ -4,15 +4,8 @@ import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
-import type { Categoria } from "@/types";
 
-export function Filtros({
-  categorias,
-  marcas,
-}: {
-  categorias: Categoria[];
-  marcas: string[];
-}) {
+export function Filtros({ marcas }: { marcas: string[] }) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -49,19 +42,6 @@ export function Filtros({
           Buscar
         </Button>
       </form>
-
-      <select
-        className="rounded-md border border-roca-negro/20 bg-roca-blanco px-3 py-2 text-sm text-roca-negro focus:outline-none focus:ring-2 focus:ring-roca-rojo"
-        value={searchParams.get("categoria") ?? ""}
-        onChange={(e) => actualizarParametro("categoria", e.target.value)}
-      >
-        <option value="">Todas las categorías</option>
-        {categorias.map((c) => (
-          <option key={c.id} value={c.id}>
-            {c.nombre}
-          </option>
-        ))}
-      </select>
 
       <select
         className="rounded-md border border-roca-negro/20 bg-roca-blanco px-3 py-2 text-sm text-roca-negro focus:outline-none focus:ring-2 focus:ring-roca-rojo"

@@ -7,7 +7,8 @@ import { Textarea } from "@/components/ui/Textarea";
 import { Select } from "@/components/ui/Select";
 import { Button } from "@/components/ui/Button";
 import type { ProductoFormState } from "@/lib/actions/productos";
-import type { Categoria, Producto } from "@/types";
+import type { ProductoConMarca } from "@/lib/admin";
+import type { Categoria } from "@/types";
 
 type AccionProducto = (
   state: ProductoFormState,
@@ -17,11 +18,13 @@ type AccionProducto = (
 export function ProductoForm({
   accion,
   categorias,
+  marcas,
   producto,
 }: {
   accion: AccionProducto;
   categorias: Categoria[];
-  producto?: Producto;
+  marcas: string[];
+  producto?: ProductoConMarca;
 }) {
   const [state, formAction, pending] = useActionState(accion, {});
   const inputFotoRef = useRef<HTMLInputElement>(null);
@@ -58,7 +61,19 @@ export function ProductoForm({
           <label htmlFor="marca" className="text-sm font-medium">
             Marca
           </label>
-          <Input id="marca" name="marca" defaultValue={producto?.marca ?? ""} />
+          <Input
+            id="marca"
+            name="marca"
+            list="marcas-existentes"
+            autoComplete="off"
+            placeholder="Elegí una existente o escribí una nueva"
+            defaultValue={producto?.marcas?.nombre ?? ""}
+          />
+          <datalist id="marcas-existentes">
+            {marcas.map((m) => (
+              <option key={m} value={m} />
+            ))}
+          </datalist>
         </div>
       </div>
 
@@ -104,29 +119,14 @@ export function ProductoForm({
         </Select>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="flex flex-col gap-1">
-          <label htmlFor="precio_acordado" className="text-sm font-medium">
-            Precio acordado *
+          <label htmlFor="precio" className="text-sm font-medium">
+            Precio Catálogo (con IVA incluido) *
           </label>
           <Input
-            id="precio_acordado"
-            name="precio_acordado"
-            type="number"
-            step="0.01"
-            min="0"
-            required
-            defaultValue={producto?.precio_acordado}
-          />
-        </div>
-
-        <div className="flex flex-col gap-1">
-          <label htmlFor="precio_lista2" className="text-sm font-medium">
-            Precio lista (público) *
-          </label>
-          <Input
-            id="precio_lista2"
-            name="precio_lista2"
+            id="precio"
+            name="precio"
             type="number"
             step="0.01"
             min="0"
@@ -139,13 +139,14 @@ export function ProductoForm({
           <label htmlFor="iva_porcentaje" className="text-sm font-medium">
             % IVA
           </label>
-          <Input
+          <Select
             id="iva_porcentaje"
             name="iva_porcentaje"
-            type="number"
-            min="0"
             defaultValue={producto?.iva_porcentaje ?? 21}
-          />
+          >
+            <option value="21">21%</option>
+            <option value="10.5">10.5%</option>
+          </Select>
         </div>
       </div>
 

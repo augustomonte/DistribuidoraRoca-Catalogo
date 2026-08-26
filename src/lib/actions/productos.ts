@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getPerfilActual } from "@/lib/auth";
+import { obtenerOCrearMarcaId } from "@/lib/marcas";
 
 export interface ProductoFormState {
   error?: string;
@@ -23,39 +24,34 @@ function leerCamposProducto(formData: FormData) {
   const descripcion = String(formData.get("descripcion") ?? "").trim();
   const marca = String(formData.get("marca") ?? "").trim();
   const categoriaIdRaw = String(formData.get("categoria_id") ?? "");
-  const precioAcordadoRaw = String(formData.get("precio_acordado") ?? "");
-  const precioLista2Raw = String(formData.get("precio_lista2") ?? "");
+  const precioRaw = String(formData.get("precio") ?? "");
   const ivaRaw = String(formData.get("iva_porcentaje") ?? "21");
 
   if (!codigo || !nombre) {
     return { error: "El código y el nombre son obligatorios." } as const;
   }
 
-  const precioAcordado = Number(precioAcordadoRaw.replace(",", "."));
-  const precioLista2 = Number(precioLista2Raw.replace(",", "."));
+  const precio = Number(precioRaw.replace(",", "."));
   const iva = Number(ivaRaw);
 
-  if (Number.isNaN(precioAcordado) || precioAcordado < 0) {
-    return { error: "El precio acordado no es válido." } as const;
+  if (Number.isNaN(precio) || precio < 0) {
+    return { error: "El precio no es válido." } as const;
   }
-  if (Number.isNaN(precioLista2) || precioLista2 < 0) {
-    return { error: "El precio de lista no es válido." } as const;
-  }
-  if (Number.isNaN(iva) || iva < 0) {
-    return { error: "El % de IVA no es válido." } as const;
+  if (iva !== 21 && iva !== 10.5) {
+    return { error: "El % de IVA debe ser 21 o 10.5." } as const;
   }
 
   const categoriaId = categoriaIdRaw ? Number(categoriaIdRaw) : null;
 
   return {
+    marcaTexto: marca,
     valores: {
       codigo,
       nombre,
       descripcion: descripcion || null,
-      marca: marca || null,
       categoria_id: categoriaId,
-      precio_acordado: precioAcordado,
-      precio_lista2: precioLista2,
+      precio_acordado: precio,
+      precio_lista2: precio,
       iva_porcentaje: iva,
       stock_disponible: formData.get("stock_disponible") === "on",
     },
@@ -109,8 +105,13 @@ export async function crearProducto(
   if (fotoError) return { error: fotoError };
 
   const supabase = await createClient();
+  const marcaId = resultado.marcaTexto
+    ? await obtenerOCrearMarcaId(supabase, resultado.marcaTexto)
+    : null;
+
   const { error } = await supabase.from("productos").insert({
     ...resultado.valores,
+    marca_id: marcaId,
     foto_url: fotoUrl ?? null,
   });
 
@@ -143,10 +144,15 @@ export async function actualizarProducto(
   if (fotoError) return { error: fotoError };
 
   const supabase = await createClient();
+  const marcaId = resultado.marcaTexto
+    ? await obtenerOCrearMarcaId(supabase, resultado.marcaTexto)
+    : null;
+
   const { error } = await supabase
     .from("productos")
     .update({
       ...resultado.valores,
+      marca_id: marcaId,
       ...(fotoUrl ? { foto_url: fotoUrl } : {}),
     })
     .eq("id", id);

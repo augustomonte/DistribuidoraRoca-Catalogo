@@ -21,6 +21,24 @@ export type Database = {
         };
         Relationships: [];
       };
+      marcas: {
+        Row: {
+          id: number;
+          nombre: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: number;
+          nombre: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: number;
+          nombre?: string;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
       perfiles: {
         Row: {
           id: string;
@@ -75,10 +93,13 @@ export type Database = {
           nombre: string;
           descripcion: string | null;
           categoria_id: number | null;
-          marca: string | null;
+          marca_id: number | null;
           precio_acordado: number;
           precio_lista2: number;
           iva_porcentaje: number;
+          nota_iva: string | null;
+          unidad_venta: string | null;
+          barcode: string | null;
           foto_url: string | null;
           stock_disponible: boolean;
           activo: boolean;
@@ -90,10 +111,13 @@ export type Database = {
           nombre: string;
           descripcion?: string | null;
           categoria_id?: number | null;
-          marca?: string | null;
+          marca_id?: number | null;
           precio_acordado?: number;
           precio_lista2?: number;
           iva_porcentaje?: number;
+          nota_iva?: string | null;
+          unidad_venta?: string | null;
+          barcode?: string | null;
           foto_url?: string | null;
           stock_disponible?: boolean;
           activo?: boolean;
@@ -105,10 +129,13 @@ export type Database = {
           nombre?: string;
           descripcion?: string | null;
           categoria_id?: number | null;
-          marca?: string | null;
+          marca_id?: number | null;
           precio_acordado?: number;
           precio_lista2?: number;
           iva_porcentaje?: number;
+          nota_iva?: string | null;
+          unidad_venta?: string | null;
+          barcode?: string | null;
           foto_url?: string | null;
           stock_disponible?: boolean;
           activo?: boolean;
@@ -120,6 +147,13 @@ export type Database = {
             columns: ["categoria_id"];
             isOneToOne: false;
             referencedRelation: "categorias";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "productos_marca_id_fkey";
+            columns: ["marca_id"];
+            isOneToOne: false;
+            referencedRelation: "marcas";
             referencedColumns: ["id"];
           }
         ];
@@ -134,9 +168,13 @@ export type Database = {
           descripcion: string | null;
           categoria_id: number | null;
           categoria_nombre: string | null;
+          marca_id: number | null;
           marca: string | null;
           precio: number;
           iva_porcentaje: number;
+          nota_iva: string | null;
+          unidad_venta: string | null;
+          barcode: string | null;
           foto_url: string | null;
           stock_disponible: boolean;
           activo: boolean;

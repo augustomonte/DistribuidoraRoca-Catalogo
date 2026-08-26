@@ -36,9 +36,24 @@ export async function obtenerProductos({
   }
 
   if (busqueda) {
-    const termino = busqueda.trim().replace(/[%,]/g, "");
+    const termino = busqueda.trim();
     if (termino) {
-      query = query.or(`nombre.ilike.%${termino}%,codigo.ilike.%${termino}%`);
+      // Términos cortos alfanuméricos sin espacios (ej: "00100400") suelen
+      // ser un código de producto: priorizamos coincidencia exacta/parcial
+      // por ilike en vez de full-text search, que no maneja bien códigos.
+      const pareceCodigo = /^[a-z0-9-]+$/i.test(termino) && termino.length <= 20;
+
+      if (pareceCodigo) {
+        const escapado = termino.replace(/[%,]/g, "");
+        query = query.or(
+          `codigo.ilike.%${escapado}%,nombre.ilike.%${escapado}%`
+        );
+      } else {
+        query = query.textSearch("nombre", termino, {
+          type: "websearch",
+          config: "spanish",
+        });
+      }
     }
   }
 
@@ -63,16 +78,10 @@ export async function obtenerCategorias(): Promise<Categoria[]> {
 export async function obtenerMarcas(): Promise<string[]> {
   const supabase = await createClient();
   const { data, error } = await supabase
-    .from("productos_vista")
-    .select("marca")
-    .not("marca", "is", null);
+    .from("marcas")
+    .select("nombre")
+    .order("nombre", { ascending: true });
 
   if (error) throw error;
-
-  const marcas = new Set<string>();
-  for (const fila of data ?? []) {
-    if (fila.marca) marcas.add(fila.marca);
-  }
-
-  return Array.from(marcas).sort((a, b) => a.localeCompare(b, "es"));
+  return (data ?? []).map((m) => m.nombre);
 }

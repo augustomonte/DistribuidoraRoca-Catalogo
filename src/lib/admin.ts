@@ -3,13 +3,19 @@ import type { Perfil, Producto } from "@/types";
 
 export const ADMIN_PRODUCTOS_POR_PAGINA = 50;
 
+export type ProductoConMarca = Producto & {
+  marcas: { nombre: string } | null;
+};
+
 export async function obtenerProductosAdmin({
   pagina = 1,
   busqueda,
+  marcaId,
 }: {
   pagina?: number;
   busqueda?: string;
-}): Promise<{ productos: Producto[]; total: number }> {
+  marcaId?: number;
+}): Promise<{ productos: ProductoConMarca[]; total: number }> {
   const supabase = await createClient();
 
   const desde = (pagina - 1) * ADMIN_PRODUCTOS_POR_PAGINA;
@@ -17,9 +23,13 @@ export async function obtenerProductosAdmin({
 
   let query = supabase
     .from("productos")
-    .select("*", { count: "exact" })
+    .select("*, marcas(nombre)", { count: "exact" })
     .order("created_at", { ascending: false })
     .range(desde, hasta);
+
+  if (marcaId) {
+    query = query.eq("marca_id", marcaId);
+  }
 
   if (busqueda) {
     const termino = busqueda.trim().replace(/[%,]/g, "");
@@ -31,19 +41,21 @@ export async function obtenerProductosAdmin({
   const { data, count, error } = await query;
   if (error) throw error;
 
-  return { productos: data ?? [], total: count ?? 0 };
+  return { productos: (data ?? []) as unknown as ProductoConMarca[], total: count ?? 0 };
 }
 
-export async function obtenerProductoPorId(id: string): Promise<Producto | null> {
+export async function obtenerProductoPorId(
+  id: string
+): Promise<ProductoConMarca | null> {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("productos")
-    .select("*")
+    .select("*, marcas(nombre)")
     .eq("id", id)
     .single();
 
   if (error) return null;
-  return data;
+  return data as unknown as ProductoConMarca;
 }
 
 export async function obtenerVendedores(): Promise<Perfil[]> {
