@@ -201,6 +201,30 @@ export async function crearFerreteria(
   return { ok: true };
 }
 
+export async function eliminarFerreteria(id: string) {
+  await requireAdmin();
+  const supabase = await createClient();
+
+  const { data: perfil } = await supabase
+    .from("perfiles")
+    .select("rol")
+    .eq("id", id)
+    .single();
+
+  if (!perfil || perfil.rol !== "ferreteria") {
+    throw new Error("Solo se pueden eliminar cuentas de ferretería.");
+  }
+
+  // Borra el usuario de Supabase Auth; el perfil se borra solo por el
+  // ON DELETE CASCADE hacia la tabla perfiles.
+  const admin = createAdminClient();
+  const { error } = await admin.auth.admin.deleteUser(id);
+  if (error) throw new Error(error.message);
+
+  revalidatePath("/admin/ferreterias");
+  revalidatePath("/vendedor/ferreterias");
+}
+
 export async function alternarActivoPerfil(id: string, activo: boolean) {
   await requireAdmin();
   const supabase = await createClient();

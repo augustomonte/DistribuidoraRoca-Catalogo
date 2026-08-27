@@ -1,14 +1,17 @@
 import { alternarActivoPerfil } from "@/lib/actions/usuarios";
+import { EliminarFerreteriaBoton } from "@/components/admin/EliminarFerreteriaBoton";
 import type { Perfil } from "@/types";
 
 export function PerfilesTable({
   perfiles,
   columnaExtra,
   soloLectura = false,
+  mostrarEliminar = false,
 }: {
   perfiles: (Perfil & { vendedor?: Pick<Perfil, "nombre" | "apellido"> | null })[];
   columnaExtra?: "razon_social" | "vendedor";
   soloLectura?: boolean;
+  mostrarEliminar?: boolean;
 }) {
   if (perfiles.length === 0) {
     return (
@@ -79,21 +82,30 @@ export function PerfilesTable({
                 </span>
               </td>
               {!soloLectura && (
-                <td className="px-4 py-3 text-right">
-                  <form
-                    action={alternarActivoPerfil.bind(
-                      null,
-                      perfil.id,
-                      perfil.activo
-                    )}
-                  >
-                    <button
-                      type="submit"
-                      className="rounded-md border border-roca-negro/20 px-3 py-1.5 text-xs font-medium hover:bg-roca-negro/5"
+                <td className="px-4 py-3">
+                  <div className="flex justify-end gap-2">
+                    <form
+                      action={alternarActivoPerfil.bind(
+                        null,
+                        perfil.id,
+                        perfil.activo
+                      )}
                     >
-                      {perfil.activo ? "Desactivar" : "Activar"}
-                    </button>
-                  </form>
+                      <button
+                        type="submit"
+                        className="rounded-md border border-roca-negro/20 px-3 py-1.5 text-xs font-medium hover:bg-roca-negro/5"
+                      >
+                        {perfil.activo ? "Desactivar" : "Activar"}
+                      </button>
+                    </form>
+
+                    {mostrarEliminar && (
+                      <EliminarFerreteriaBoton
+                        id={perfil.id}
+                        nombre={perfil.razon_social || perfil.nombre}
+                      />
+                    )}
+                  </div>
                 </td>
               )}
             </tr>
