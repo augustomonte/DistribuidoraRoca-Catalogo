@@ -8,6 +8,7 @@ import { CrearVendedorForm } from "@/components/admin/CrearVendedorForm";
 import { CrearFerreteriaForm } from "@/components/admin/CrearFerreteriaForm";
 import { FormularioColapsable } from "@/components/admin/FormularioColapsable";
 import { BuscadorOrdenUsuarios } from "@/components/admin/BuscadorOrdenUsuarios";
+import { FiltroVendedor } from "@/components/admin/FiltroVendedor";
 
 function leerOrden(valor?: string): OrdenPerfiles {
   return valor === "nombre_desc" ? "nombre_desc" : "nombre_asc";
@@ -21,13 +22,19 @@ export default async function UsuariosPage({
     vorden?: string;
     fq?: string;
     forden?: string;
+    fvendedor?: string;
   }>;
 }) {
-  const { vq, vorden, fq, forden } = await searchParams;
+  const { vq, vorden, fq, forden, fvendedor } = await searchParams;
 
-  const [vendedores, ferreterias] = await Promise.all([
+  const [vendedores, todosLosVendedores, ferreterias] = await Promise.all([
     obtenerVendedores({ busqueda: vq, orden: leerOrden(vorden) }),
-    obtenerFerreterias({ busqueda: fq, orden: leerOrden(forden) }),
+    obtenerVendedores(),
+    obtenerFerreterias({
+      busqueda: fq,
+      orden: leerOrden(forden),
+      vendedorId: fvendedor,
+    }),
   ]);
 
   return (
@@ -72,6 +79,11 @@ export default async function UsuariosPage({
             paramBusqueda="fq"
             paramOrden="forden"
             placeholder="Buscar ferretería..."
+          />
+
+          <FiltroVendedor
+            paramNombre="fvendedor"
+            vendedores={todosLosVendedores}
           />
 
           <p className="text-sm text-roca-negro/50">

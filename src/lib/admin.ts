@@ -113,9 +113,11 @@ export async function obtenerVendedores({
 export async function obtenerFerreterias({
   busqueda,
   orden = "nombre_asc",
+  vendedorId,
 }: {
   busqueda?: string;
   orden?: OrdenPerfiles;
+  vendedorId?: string;
 } = {}): Promise<
   (Perfil & { vendedor: Pick<Perfil, "id" | "nombre" | "apellido"> | null })[]
 > {
@@ -126,6 +128,10 @@ export async function obtenerFerreterias({
     .select("*, vendedor:creado_por(id, nombre, apellido)")
     .eq("rol", "ferreteria")
     .order("razon_social", { ascending: orden !== "nombre_desc" });
+
+  if (vendedorId) {
+    query = query.eq("creado_por", vendedorId);
+  }
 
   if (busqueda) {
     const termino = busqueda.trim().replace(/[%,]/g, "");

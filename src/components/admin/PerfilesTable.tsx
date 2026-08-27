@@ -27,7 +27,9 @@ export function PerfilesTable({
       <table className="w-full min-w-[700px] text-left text-sm">
         <thead className="border-b border-roca-negro/10 bg-roca-gris text-xs uppercase text-roca-negro/60">
           <tr>
-            <th className="px-4 py-3">Nombre</th>
+            <th className="px-4 py-3">
+              {columnaExtra === "vendedor" ? "Razón social" : "Nombre"}
+            </th>
             {columnaExtra === "razon_social" && (
               <>
                 <th className="px-4 py-3">Razón social</th>
@@ -49,7 +51,9 @@ export function PerfilesTable({
               className="border-b border-roca-negro/5 transition-colors duration-150 last:border-0 hover:bg-roca-gris/60"
             >
               <td className="px-4 py-3 font-medium text-roca-negro">
-                {perfil.nombre} {perfil.apellido ?? ""}
+                {columnaExtra === "vendedor"
+                  ? perfil.razon_social || "—"
+                  : `${perfil.nombre} ${perfil.apellido ?? ""}`}
               </td>
               {columnaExtra === "razon_social" && (
                 <>
