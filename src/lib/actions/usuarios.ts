@@ -19,9 +19,9 @@ async function requireAdmin() {
   return perfil;
 }
 
-async function requireVendedor() {
+async function requireAdminOVendedor() {
   const perfil = await getPerfilActual();
-  if (!perfil || perfil.rol !== "vendedor") {
+  if (!perfil || (perfil.rol !== "admin" && perfil.rol !== "vendedor")) {
     throw new Error("No autorizado");
   }
   return perfil;
@@ -84,7 +84,7 @@ export async function crearVendedor(
     return { error: perfilError.message };
   }
 
-  revalidatePath("/admin/vendedores");
+  revalidatePath("/admin/usuarios");
   return { ok: true };
 }
 
@@ -141,7 +141,7 @@ export async function crearFerreteria(
   _prevState: UsuarioFormState,
   formData: FormData
 ): Promise<UsuarioFormState> {
-  const vendedor = await requireVendedor();
+  const creador = await requireAdminOVendedor();
 
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
   const password = String(formData.get("password") ?? "");
@@ -187,7 +187,7 @@ export async function crearFerreteria(
     direccion: direccion || null,
     ciudad: ciudad || null,
     provincia: provincia || null,
-    creado_por: vendedor.id,
+    creado_por: creador.id,
     activo: true,
   });
 
@@ -197,7 +197,7 @@ export async function crearFerreteria(
   }
 
   revalidatePath("/vendedor/ferreterias");
-  revalidatePath("/admin/ferreterias");
+  revalidatePath("/admin/usuarios");
   return { ok: true };
 }
 
@@ -221,8 +221,49 @@ export async function eliminarFerreteria(id: string) {
   const { error } = await admin.auth.admin.deleteUser(id);
   if (error) throw new Error(error.message);
 
-  revalidatePath("/admin/ferreterias");
   revalidatePath("/vendedor/ferreterias");
+  revalidatePath("/admin/usuarios");
+}
+
+export async function eliminarVendedor(
+  id: string,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- firma requerida por useActionState
+  _prevState: UsuarioFormState,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- firma requerida por useActionState
+  _formData: FormData
+): Promise<UsuarioFormState> {
+  await requireAdmin();
+  const supabase = await createClient();
+
+  const { data: perfil } = await supabase
+    .from("perfiles")
+    .select("rol")
+    .eq("id", id)
+    .single();
+
+  if (!perfil || perfil.rol !== "vendedor") {
+    return { error: "Solo se pueden eliminar cuentas de vendedor." };
+  }
+
+  const { count } = await supabase
+    .from("perfiles")
+    .select("*", { count: "exact", head: true })
+    .eq("creado_por", id);
+
+  if (count && count > 0) {
+    return {
+      error: `No se puede eliminar: tiene ${count} ferretería${
+        count === 1 ? "" : "s"
+      } creada${count === 1 ? "" : "s"}. Reasigná o eliminá esas cuentas primero.`,
+    };
+  }
+
+  const admin = createAdminClient();
+  const { error } = await admin.auth.admin.deleteUser(id);
+  if (error) return { error: error.message };
+
+  revalidatePath("/admin/usuarios");
+  return { ok: true };
 }
 
 export async function alternarActivoPerfil(id: string, activo: boolean) {
@@ -236,7 +277,6 @@ export async function alternarActivoPerfil(id: string, activo: boolean) {
 
   if (error) throw new Error(error.message);
 
-  revalidatePath("/admin/vendedores");
-  revalidatePath("/admin/ferreterias");
   revalidatePath("/admin/administradores");
+  revalidatePath("/admin/usuarios");
 }

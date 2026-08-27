@@ -81,28 +81,62 @@ export async function obtenerAdministradores(): Promise<Perfil[]> {
   return data ?? [];
 }
 
-export async function obtenerVendedores(): Promise<Perfil[]> {
+export type OrdenPerfiles = "nombre_asc" | "nombre_desc";
+
+export async function obtenerVendedores({
+  busqueda,
+  orden = "nombre_asc",
+}: {
+  busqueda?: string;
+  orden?: OrdenPerfiles;
+} = {}): Promise<Perfil[]> {
   const supabase = await createClient();
-  const { data, error } = await supabase
+
+  let query = supabase
     .from("perfiles")
     .select("*")
     .eq("rol", "vendedor")
-    .order("created_at", { ascending: false });
+    .order("nombre", { ascending: orden !== "nombre_desc" });
 
+  if (busqueda) {
+    const termino = busqueda.trim().replace(/[%,]/g, "");
+    if (termino) {
+      query = query.or(`nombre.ilike.%${termino}%,apellido.ilike.%${termino}%`);
+    }
+  }
+
+  const { data, error } = await query;
   if (error) throw error;
   return data ?? [];
 }
 
-export async function obtenerFerreterias(): Promise<
+export async function obtenerFerreterias({
+  busqueda,
+  orden = "nombre_asc",
+}: {
+  busqueda?: string;
+  orden?: OrdenPerfiles;
+} = {}): Promise<
   (Perfil & { vendedor: Pick<Perfil, "id" | "nombre" | "apellido"> | null })[]
 > {
   const supabase = await createClient();
-  const { data, error } = await supabase
+
+  let query = supabase
     .from("perfiles")
     .select("*, vendedor:creado_por(id, nombre, apellido)")
     .eq("rol", "ferreteria")
-    .order("created_at", { ascending: false });
+    .order("razon_social", { ascending: orden !== "nombre_desc" });
 
+  if (busqueda) {
+    const termino = busqueda.trim().replace(/[%,]/g, "");
+    if (termino) {
+      query = query.or(
+        `nombre.ilike.%${termino}%,razon_social.ilike.%${termino}%`
+      );
+    }
+  }
+
+  const { data, error } = await query;
   if (error) throw error;
   return (data ?? []) as unknown as (Perfil & {
     vendedor: Pick<Perfil, "id" | "nombre" | "apellido"> | null;

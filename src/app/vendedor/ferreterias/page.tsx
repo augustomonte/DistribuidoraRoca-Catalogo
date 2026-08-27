@@ -1,6 +1,6 @@
 import { obtenerMisFerreterias } from "@/lib/vendedor";
 import { PerfilesTable } from "@/components/admin/PerfilesTable";
-import { CrearFerreteriaForm } from "@/components/vendedor/CrearFerreteriaForm";
+import { CrearFerreteriaForm } from "@/components/admin/CrearFerreteriaForm";
 
 export default async function MisFerreteriasPage() {
   const ferreterias = await obtenerMisFerreterias();

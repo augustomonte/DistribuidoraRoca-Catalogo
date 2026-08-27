@@ -1,17 +1,18 @@
 import { alternarActivoPerfil } from "@/lib/actions/usuarios";
 import { EliminarFerreteriaBoton } from "@/components/admin/EliminarFerreteriaBoton";
+import { EliminarVendedorBoton } from "@/components/admin/EliminarVendedorBoton";
 import type { Perfil } from "@/types";
 
 export function PerfilesTable({
   perfiles,
   columnaExtra,
   soloLectura = false,
-  mostrarEliminar = false,
+  accionEliminar,
 }: {
   perfiles: (Perfil & { vendedor?: Pick<Perfil, "nombre" | "apellido"> | null })[];
   columnaExtra?: "razon_social" | "vendedor";
   soloLectura?: boolean;
-  mostrarEliminar?: boolean;
+  accionEliminar?: "ferreteria" | "vendedor";
 }) {
   if (perfiles.length === 0) {
     return (
@@ -99,10 +100,16 @@ export function PerfilesTable({
                       </button>
                     </form>
 
-                    {mostrarEliminar && (
+                    {accionEliminar === "ferreteria" && (
                       <EliminarFerreteriaBoton
                         id={perfil.id}
                         nombre={perfil.razon_social || perfil.nombre}
+                      />
+                    )}
+                    {accionEliminar === "vendedor" && (
+                      <EliminarVendedorBoton
+                        id={perfil.id}
+                        nombre={`${perfil.nombre} ${perfil.apellido ?? ""}`.trim()}
                       />
                     )}
                   </div>

@@ -7,8 +7,7 @@ const NAV_POR_ROL: Record<Perfil["rol"], { href: string; label: string }[]> = {
   admin: [
     { href: "/admin", label: "Productos" },
     { href: "/admin/administradores", label: "Administradores" },
-    { href: "/admin/vendedores", label: "Vendedores" },
-    { href: "/admin/ferreterias", label: "Ferreterías" },
+    { href: "/admin/usuarios", label: "Usuarios" },
     { href: "/admin/marcas", label: "Marcas" },
     { href: "/catalogo", label: "Ver catálogo" },
   ],
