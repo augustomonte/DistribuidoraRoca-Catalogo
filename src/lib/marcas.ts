@@ -19,25 +19,27 @@ export async function obtenerMarcasConConteo(): Promise<
 > {
   const supabase = await createClient();
 
-  const [{ data: marcas, error: errorMarcas }, { data: productos, error: errorProductos }] =
-    await Promise.all([
-      supabase.from("marcas").select("*").order("nombre", { ascending: true }),
-      supabase.from("productos").select("marca_id").not("marca_id", "is", null),
-    ]);
+  const { data: marcas, error: errorMarcas } = await supabase
+    .from("marcas")
+    .select("*")
+    .order("nombre", { ascending: true });
 
   if (errorMarcas) throw errorMarcas;
-  if (errorProductos) throw errorProductos;
 
-  const conteos = new Map<number, number>();
-  for (const p of productos ?? []) {
-    if (p.marca_id === null) continue;
-    conteos.set(p.marca_id, (conteos.get(p.marca_id) ?? 0) + 1);
-  }
+  // Un count por marca (en vez de traer todas las filas de productos y
+  // contarlas en JS): Supabase corta las consultas normales en 1000 filas
+  // por defecto, y ya tenemos más de 1000 productos con marca asignada,
+  // así que ese enfoque subcontaba las marcas cargadas más tarde.
+  return Promise.all(
+    (marcas ?? []).map(async (marca) => {
+      const { count } = await supabase
+        .from("productos")
+        .select("*", { count: "exact", head: true })
+        .eq("marca_id", marca.id);
 
-  return (marcas ?? []).map((m) => ({
-    ...m,
-    cantidadProductos: conteos.get(m.id) ?? 0,
-  }));
+      return { ...marca, cantidadProductos: count ?? 0 };
+    })
+  );
 }
 
 /**
