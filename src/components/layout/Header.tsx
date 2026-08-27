@@ -6,6 +6,7 @@ import type { Perfil } from "@/types";
 const NAV_POR_ROL: Record<Perfil["rol"], { href: string; label: string }[]> = {
   admin: [
     { href: "/admin", label: "Productos" },
+    { href: "/admin/administradores", label: "Administradores" },
     { href: "/admin/vendedores", label: "Vendedores" },
     { href: "/admin/ferreterias", label: "Ferreterías" },
     { href: "/admin/marcas", label: "Marcas" },

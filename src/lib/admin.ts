@@ -69,6 +69,18 @@ export async function obtenerProductoPorId(
   return data as unknown as ProductoConMarca;
 }
 
+export async function obtenerAdministradores(): Promise<Perfil[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("perfiles")
+    .select("*")
+    .eq("rol", "admin")
+    .order("created_at", { ascending: false });
+
+  if (error) throw error;
+  return data ?? [];
+}
+
 export async function obtenerVendedores(): Promise<Perfil[]> {
   const supabase = await createClient();
   const { data, error } = await supabase

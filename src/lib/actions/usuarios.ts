@@ -88,6 +88,55 @@ export async function crearVendedor(
   return { ok: true };
 }
 
+export async function crearAdmin(
+  _prevState: UsuarioFormState,
+  formData: FormData
+): Promise<UsuarioFormState> {
+  await requireAdmin();
+
+  const email = String(formData.get("email") ?? "").trim().toLowerCase();
+  const password = String(formData.get("password") ?? "");
+  const nombre = String(formData.get("nombre") ?? "").trim();
+  const apellido = String(formData.get("apellido") ?? "").trim();
+  const telefono = String(formData.get("telefono") ?? "").trim();
+
+  const errorCredenciales = validarCredenciales(email, password);
+  if (errorCredenciales) return { error: errorCredenciales };
+  if (!nombre) return { error: "El nombre es obligatorio." };
+
+  const admin = createAdminClient();
+
+  const { data: nuevoUsuario, error: createError } =
+    await admin.auth.admin.createUser({
+      email,
+      password,
+      email_confirm: true,
+    });
+
+  if (createError || !nuevoUsuario.user) {
+    return {
+      error: createError?.message ?? "No se pudo crear el usuario.",
+    };
+  }
+
+  const { error: perfilError } = await admin.from("perfiles").insert({
+    id: nuevoUsuario.user.id,
+    rol: "admin",
+    nombre,
+    apellido: apellido || null,
+    telefono: telefono || null,
+    activo: true,
+  });
+
+  if (perfilError) {
+    await admin.auth.admin.deleteUser(nuevoUsuario.user.id);
+    return { error: perfilError.message };
+  }
+
+  revalidatePath("/admin/administradores");
+  return { ok: true };
+}
+
 export async function crearFerreteria(
   _prevState: UsuarioFormState,
   formData: FormData
@@ -165,4 +214,5 @@ export async function alternarActivoPerfil(id: string, activo: boolean) {
 
   revalidatePath("/admin/vendedores");
   revalidatePath("/admin/ferreterias");
+  revalidatePath("/admin/administradores");
 }
