@@ -7,6 +7,7 @@ import {
 import { obtenerMarcas } from "@/lib/marcas";
 import { ProductosTable } from "@/components/admin/ProductosTable";
 import { OrdenSelect } from "@/components/admin/OrdenSelect";
+import { FiltroSelect } from "@/components/admin/FiltroSelect";
 import { Paginacion } from "@/components/catalogo/Paginacion";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -24,23 +25,30 @@ export default async function AdminProductosPage({
     pagina?: string;
     q?: string;
     marca?: string;
+    activo?: string;
     orden?: string;
   }>;
 }) {
-  const { pagina: paginaParam, q, marca: marcaParam, orden: ordenParam } =
-    await searchParams;
+  const {
+    pagina: paginaParam,
+    q,
+    marca: marcaParam,
+    activo: activoParam,
+    orden: ordenParam,
+  } = await searchParams;
   const pagina = Math.max(1, Number(paginaParam) || 1);
   const marcaId = marcaParam ? Number(marcaParam) : undefined;
+  const activo =
+    activoParam === "si" ? true : activoParam === "no" ? false : undefined;
   const orden = ORDENES_VALIDOS.includes(ordenParam as OrdenProductosAdmin)
     ? (ordenParam as OrdenProductosAdmin)
     : "reciente";
 
   const [{ productos, total }, marcas] = await Promise.all([
-    obtenerProductosAdmin({ pagina, busqueda: q, marcaId, orden }),
-    marcaId ? obtenerMarcas() : Promise.resolve([]),
+    obtenerProductosAdmin({ pagina, busqueda: q, marcaId, activo, orden }),
+    obtenerMarcas(),
   ]);
   const totalPaginas = Math.ceil(total / ADMIN_PRODUCTOS_POR_PAGINA);
-  const marcaActual = marcas.find((m) => m.id === marcaId);
 
   return (
     <div>
@@ -51,23 +59,12 @@ export default async function AdminProductosPage({
         </Link>
       </div>
 
-      {marcaId && (
-        <div className="mb-4 flex items-center gap-2 rounded-md bg-roca-rojo/10 px-3 py-2 text-sm text-roca-negro">
-          <span>
-            Filtrando por marca:{" "}
-            <span className="font-semibold">
-              {marcaActual?.nombre ?? `#${marcaId}`}
-            </span>
-          </span>
-          <Link href="/admin" className="text-roca-rojo underline">
-            Quitar filtro
-          </Link>
-        </div>
-      )}
-
       <div className="mb-4 flex flex-wrap items-center gap-2">
         <form className="flex max-w-sm flex-1 gap-2">
           {marcaId && <input type="hidden" name="marca" value={marcaId} />}
+          {activoParam && (
+            <input type="hidden" name="activo" value={activoParam} />
+          )}
           {ordenParam && <input type="hidden" name="orden" value={ordenParam} />}
           <Input
             name="q"
@@ -78,6 +75,24 @@ export default async function AdminProductosPage({
             Buscar
           </Button>
         </form>
+
+        <FiltroSelect
+          paramNombre="marca"
+          placeholder="Todas las marcas"
+          opciones={marcas.map((m) => ({
+            value: String(m.id),
+            label: m.nombre,
+          }))}
+        />
+
+        <FiltroSelect
+          paramNombre="activo"
+          placeholder="Activos e inactivos"
+          opciones={[
+            { value: "si", label: "Activos" },
+            { value: "no", label: "Inactivos" },
+          ]}
+        />
 
         <OrdenSelect />
       </div>
@@ -91,7 +106,12 @@ export default async function AdminProductosPage({
       <Paginacion
         paginaActual={pagina}
         totalPaginas={totalPaginas}
-        searchParams={{ q, marca: marcaParam, orden: ordenParam }}
+        searchParams={{
+          q,
+          marca: marcaParam,
+          activo: activoParam,
+          orden: ordenParam,
+        }}
       />
     </div>
   );

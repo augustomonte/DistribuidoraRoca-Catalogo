@@ -13,11 +13,13 @@ export async function obtenerProductosAdmin({
   pagina = 1,
   busqueda,
   marcaId,
+  activo,
   orden = "reciente",
 }: {
   pagina?: number;
   busqueda?: string;
   marcaId?: number;
+  activo?: boolean;
   orden?: OrdenProductosAdmin;
 }): Promise<{ productos: ProductoConMarca[]; total: number }> {
   const supabase = await createClient();
@@ -40,6 +42,10 @@ export async function obtenerProductosAdmin({
 
   if (marcaId) {
     query = query.eq("marca_id", marcaId);
+  }
+
+  if (activo !== undefined) {
+    query = query.eq("activo", activo);
   }
 
   if (busqueda) {

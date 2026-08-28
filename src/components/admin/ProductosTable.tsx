@@ -25,6 +25,7 @@ export function ProductosTable({
             <th className="px-4 py-3">Código</th>
             <th className="px-4 py-3">Nombre</th>
             <th className="px-4 py-3">Marca</th>
+            <th className="px-4 py-3">Foto</th>
             <th className="px-4 py-3">Precio Catálogo</th>
             <th className="px-4 py-3">Stock</th>
             <th className="px-4 py-3">Estado</th>
@@ -44,6 +45,9 @@ export function ProductosTable({
                 {producto.nombre}
               </td>
               <td className="px-4 py-3">{producto.marcas?.nombre ?? "—"}</td>
+              <td className="px-4 py-3">
+                {producto.foto_url ? "Sí" : "No"}
+              </td>
               <td className="px-4 py-3">
                 {formatearPrecioConIva(
                   producto.precio_lista2,

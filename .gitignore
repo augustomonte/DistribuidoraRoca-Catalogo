@@ -48,3 +48,6 @@ skills-lock.json
 
 # Claude Code: config local de permisos (no es del proyecto)
 /.claude/settings.local.json
+
+# Cache local de trabajo (datos scrapeados, no es codigo del proyecto)
+/.cache/
