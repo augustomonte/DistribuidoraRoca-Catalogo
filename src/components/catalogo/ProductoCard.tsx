@@ -42,7 +42,7 @@ export function ProductoCard({
             {producto.marca}
           </span>
         )}
-        <h3 className="line-clamp-2 text-sm font-medium text-roca-negro">
+        <h3 className="text-sm font-medium text-roca-negro">
           {producto.nombre}
         </h3>
         <p className="font-mono text-xs text-roca-negro/40">
