@@ -5,6 +5,8 @@ export type Producto = Database["public"]["Tables"]["productos"]["Row"];
 export type ProductoVista = Database["public"]["Views"]["productos_vista"]["Row"];
 export type Categoria = Database["public"]["Tables"]["categorias"]["Row"];
 export type Marca = Database["public"]["Tables"]["marcas"]["Row"];
+export type Pedido = Database["public"]["Tables"]["pedidos"]["Row"];
+export type PedidoItem = Database["public"]["Tables"]["pedido_items"]["Row"];
 
 export const RUTA_POR_ROL: Record<Perfil["rol"], string> = {
   admin: "/admin",

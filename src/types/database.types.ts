@@ -1,4 +1,5 @@
 export type RolUsuario = "admin" | "vendedor" | "cliente";
+export type EstadoPedido = "pendiente" | "confirmado" | "cancelado";
 
 export type Database = {
   public: {
@@ -167,6 +168,96 @@ export type Database = {
           }
         ];
       };
+      pedidos: {
+        Row: {
+          id: string;
+          cliente_id: string;
+          vendedor_id: string | null;
+          estado: EstadoPedido;
+          total: number;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          cliente_id: string;
+          vendedor_id?: string | null;
+          estado?: EstadoPedido;
+          total?: number;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          cliente_id?: string;
+          vendedor_id?: string | null;
+          estado?: EstadoPedido;
+          total?: number;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "pedidos_cliente_id_fkey";
+            columns: ["cliente_id"];
+            isOneToOne: false;
+            referencedRelation: "perfiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "pedidos_vendedor_id_fkey";
+            columns: ["vendedor_id"];
+            isOneToOne: false;
+            referencedRelation: "perfiles";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      pedido_items: {
+        Row: {
+          id: string;
+          pedido_id: string;
+          producto_id: string | null;
+          producto_codigo: string;
+          producto_nombre: string;
+          cantidad: number;
+          precio_unitario: number;
+          iva_porcentaje: number;
+        };
+        Insert: {
+          id?: string;
+          pedido_id: string;
+          producto_id?: string | null;
+          producto_codigo: string;
+          producto_nombre: string;
+          cantidad: number;
+          precio_unitario: number;
+          iva_porcentaje?: number;
+        };
+        Update: {
+          id?: string;
+          pedido_id?: string;
+          producto_id?: string | null;
+          producto_codigo?: string;
+          producto_nombre?: string;
+          cantidad?: number;
+          precio_unitario?: number;
+          iva_porcentaje?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "pedido_items_pedido_id_fkey";
+            columns: ["pedido_id"];
+            isOneToOne: false;
+            referencedRelation: "pedidos";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "pedido_items_producto_id_fkey";
+            columns: ["producto_id"];
+            isOneToOne: false;
+            referencedRelation: "productos";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
     };
     Views: {
       productos_vista: {
@@ -211,6 +302,7 @@ export type Database = {
     };
     Enums: {
       rol_usuario: RolUsuario;
+      estado_pedido: EstadoPedido;
     };
     CompositeTypes: Record<string, never>;
   };
