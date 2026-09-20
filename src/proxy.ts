@@ -8,6 +8,7 @@ const RUTAS_POR_PREFIJO: { prefijo: string; rolesPermitidos: RolUsuario[] }[] = 
   { prefijo: "/admin", rolesPermitidos: ["admin"] },
   { prefijo: "/vendedor", rolesPermitidos: ["admin", "vendedor"] },
   { prefijo: "/catalogo", rolesPermitidos: ["admin", "vendedor", "cliente"] },
+  { prefijo: "/perfil", rolesPermitidos: ["admin", "vendedor", "cliente"] },
 ];
 
 export async function proxy(request: NextRequest) {

@@ -12,6 +12,7 @@ const NAV_POR_ROL: Record<Perfil["rol"], { href: string; label: string }[]> = {
     { href: "/admin/marcas", label: "Marcas" },
     { href: "/admin/categorias", label: "Categorías" },
     { href: "/catalogo", label: "Ver catálogo" },
+    { href: "/perfil", label: "Mi perfil" },
   ],
   vendedor: [
     { href: "/vendedor", label: "Catálogo" },
@@ -19,8 +20,12 @@ const NAV_POR_ROL: Record<Perfil["rol"], { href: string; label: string }[]> = {
       href: "/vendedor/clientes",
       label: `Mis ${cliente.etiquetas.clientePlural.toLowerCase()}`,
     },
+    { href: "/perfil", label: "Mi perfil" },
   ],
-  cliente: [{ href: "/catalogo", label: "Catálogo" }],
+  cliente: [
+    { href: "/catalogo", label: "Catálogo" },
+    { href: "/perfil", label: "Mi perfil" },
+  ],
 };
 
 export function Header({ perfil }: { perfil: Perfil }) {
