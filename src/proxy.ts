@@ -13,6 +13,14 @@ const RUTAS_POR_PREFIJO: { prefijo: string; rolesPermitidos: RolUsuario[] }[] = 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  // Nunca confiar en un "x-perfil" que venga del pedido original: es un
+  // header interno que solo esta misma función debe poder fijar, más abajo,
+  // después de resolver el perfil real contra la sesión. Si no lo borramos
+  // acá, un cliente sin sesión podría mandarlo con un rol inventado (ej.
+  // "admin") y colarlo en cualquier respuesta que no lo pise explícitamente
+  // (por ejemplo, cuando no hay usuario logueado).
+  request.headers.delete("x-perfil");
+
   // TEMPORAL — modo desarrollo sin login (ver src/lib/dev-sin-login.ts).
   // Dejamos pasar todo sin mirar sesión ni rol. getPerfilActual() devuelve
   // un perfil simulado, así que los layouts protegidos siguen funcionando.
