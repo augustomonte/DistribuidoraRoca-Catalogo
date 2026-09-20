@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import { formatearPrecioConIva } from "@/lib/utils";
 import type { ProductoVista } from "@/types";
 
@@ -10,7 +11,8 @@ export function ProductoCard({
   index?: number;
 }) {
   return (
-    <div
+    <Link
+      href={`/catalogo/${producto.id}`}
       className="producto-card-enter group flex flex-col overflow-hidden rounded-lg border border-tema-tinta/10 bg-tema-papel shadow-sm transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-1 hover:shadow-md"
       style={{ "--i": Math.min(index, 12) } as React.CSSProperties}
     >
@@ -68,6 +70,6 @@ export function ProductoCard({
           )}
         </div>
       </div>
-    </div>
+    </Link>
   );
 }

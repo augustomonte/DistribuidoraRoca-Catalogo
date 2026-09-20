@@ -114,6 +114,26 @@ export async function obtenerCategorias(): Promise<Categoria[]> {
   return data ?? [];
 }
 
+/**
+ * Un producto vía productos_vista, es decir con el precio ya resuelto
+ * según el rol de quien consulta (igual que el listado). Si no existe o
+ * está inactivo (la vista los excluye) devuelve null: la vista deja
+ * decidir a quien llama si eso es un 404.
+ */
+export async function obtenerProductoDetalle(
+  id: string
+): Promise<ProductoVista | null> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("productos_vista")
+    .select("*")
+    .eq("id", id)
+    .maybeSingle();
+
+  if (error) throw error;
+  return data;
+}
+
 export async function obtenerMarcas(): Promise<string[]> {
   const supabase = await createClient();
   const { data, error } = await supabase
