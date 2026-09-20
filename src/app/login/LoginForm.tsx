@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -10,6 +11,7 @@ import { RUTA_POR_ROL } from "@/types";
 const MENSAJES_ERROR: Record<string, string> = {
   "cuenta-inactiva":
     "Tu cuenta está desactivada. Contactá a tu administrador.",
+  "link-invalido": "El link no es válido o expiró. Pedí uno nuevo.",
 };
 
 export function LoginForm({
@@ -84,9 +86,17 @@ export function LoginForm({
       </div>
 
       <div className="flex flex-col gap-1">
-        <label htmlFor="password" className="text-sm font-medium">
-          Contraseña
-        </label>
+        <div className="flex items-center justify-between">
+          <label htmlFor="password" className="text-sm font-medium">
+            Contraseña
+          </label>
+          <Link
+            href="/recuperar-contrasena"
+            className="text-xs text-tema-tinta/60 hover:text-tema-tinta"
+          >
+            ¿Olvidaste tu contraseña?
+          </Link>
+        </div>
         <Input
           id="password"
           type="password"
