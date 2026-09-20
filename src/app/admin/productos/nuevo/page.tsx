@@ -10,7 +10,7 @@ export default async function NuevoProductoPage() {
 
   return (
     <div>
-      <h1 className="mb-6 text-2xl font-bold text-roca-negro">
+      <h1 className="mb-6 text-2xl font-bold text-tema-tinta">
         Nuevo producto
       </h1>
       <ProductoForm accion={crearProducto} categorias={categorias} marcas={marcas} />

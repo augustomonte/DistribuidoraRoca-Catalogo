@@ -20,7 +20,7 @@ export default async function EditarProductoPage({
 
   return (
     <div>
-      <h1 className="mb-6 text-2xl font-bold text-roca-negro">
+      <h1 className="mb-6 text-2xl font-bold text-tema-tinta">
         Editar producto
       </h1>
       <ProductoForm

@@ -11,16 +11,16 @@ export function ProductosTable({
 }) {
   if (productos.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-roca-negro/20 py-24 text-center text-roca-negro/50">
+      <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-tema-tinta/20 py-24 text-center text-tema-tinta/50">
         No hay productos cargados todavía.
       </div>
     );
   }
 
   return (
-    <div className="overflow-x-auto rounded-lg border border-roca-negro/10 bg-roca-blanco">
+    <div className="overflow-x-auto rounded-lg border border-tema-tinta/10 bg-tema-papel">
       <table className="w-full min-w-[800px] text-left text-sm">
-        <thead className="border-b border-roca-negro/10 bg-roca-gris text-xs uppercase text-roca-negro/60">
+        <thead className="border-b border-tema-tinta/10 bg-tema-fondo text-xs uppercase text-tema-tinta/60">
           <tr>
             <th className="px-4 py-3">Código</th>
             <th className="px-4 py-3">Nombre</th>
@@ -36,12 +36,12 @@ export function ProductosTable({
           {productos.map((producto) => (
             <tr
               key={producto.id}
-              className="border-b border-roca-negro/5 transition-colors duration-150 last:border-0 hover:bg-roca-gris/60"
+              className="border-b border-tema-tinta/5 transition-colors duration-150 last:border-0 hover:bg-tema-fondo/60"
             >
-              <td className="px-4 py-3 text-roca-negro/60">
+              <td className="px-4 py-3 text-tema-tinta/60">
                 {producto.codigo}
               </td>
-              <td className="px-4 py-3 font-medium text-roca-negro">
+              <td className="px-4 py-3 font-medium text-tema-tinta">
                 {producto.nombre}
               </td>
               <td className="px-4 py-3">{producto.marcas?.nombre ?? "—"}</td>
@@ -62,7 +62,7 @@ export function ProductosTable({
                   className={
                     producto.activo
                       ? "rounded bg-green-100 px-2 py-1 text-xs font-semibold text-green-700"
-                      : "rounded bg-roca-negro/10 px-2 py-1 text-xs font-semibold text-roca-negro/50"
+                      : "rounded bg-tema-tinta/10 px-2 py-1 text-xs font-semibold text-tema-tinta/50"
                   }
                 >
                   {producto.activo ? "Activo" : "Inactivo"}
@@ -72,7 +72,7 @@ export function ProductosTable({
                 <div className="flex justify-end gap-2">
                   <Link
                     href={`/admin/productos/${producto.id}/editar`}
-                    className="rounded-md border border-roca-negro/20 px-3 py-1.5 text-xs font-medium hover:bg-roca-negro/5"
+                    className="rounded-md border border-tema-tinta/20 px-3 py-1.5 text-xs font-medium hover:bg-tema-tinta/5"
                   >
                     Editar
                   </Link>
@@ -86,7 +86,7 @@ export function ProductosTable({
                   >
                     <button
                       type="submit"
-                      className="rounded-md border border-roca-negro/20 px-3 py-1.5 text-xs font-medium hover:bg-roca-negro/5"
+                      className="rounded-md border border-tema-tinta/20 px-3 py-1.5 text-xs font-medium hover:bg-tema-tinta/5"
                     >
                       {producto.activo ? "Desactivar" : "Activar"}
                     </button>

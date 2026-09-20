@@ -53,7 +53,7 @@ export default async function AdminProductosPage({
   return (
     <div>
       <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
-        <h1 className="text-2xl font-bold text-roca-negro">Productos</h1>
+        <h1 className="text-2xl font-bold text-tema-tinta">Productos</h1>
         <Link href="/admin/productos/nuevo">
           <Button>+ Nuevo producto</Button>
         </Link>
@@ -97,7 +97,7 @@ export default async function AdminProductosPage({
         <OrdenSelect />
       </div>
 
-      <p className="mb-4 text-sm text-roca-negro/50">
+      <p className="mb-4 text-sm text-tema-tinta/50">
         {total} producto{total === 1 ? "" : "s"} en total
       </p>
 

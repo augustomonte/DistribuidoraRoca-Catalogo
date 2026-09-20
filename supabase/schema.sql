@@ -6,37 +6,28 @@
 -- ---------------------------------------------------------------------
 -- 1. Tipo enum de roles
 -- ---------------------------------------------------------------------
-create type public.rol_usuario as enum ('admin', 'vendedor', 'ferreteria');
+create type public.rol_usuario as enum ('admin', 'vendedor', 'cliente');
 
 -- ---------------------------------------------------------------------
 -- 2. Tabla categorias
 -- ---------------------------------------------------------------------
+--    Sin datos: cada cliente carga las suyas desde el panel (Admin ->
+--    Categorías) o con un seed propio (ver supabase/seeds/).
 create table public.categorias (
   id int generated always as identity primary key,
   nombre text not null,
-  sector_numero int not null
+  orden int not null
 );
 
-insert into public.categorias (nombre, sector_numero) values
-  ('Electricidad / Plomería', 1),
-  ('Ferretería General', 2),
-  ('Fijaciones / Bulonería', 3),
-  ('Pinturas / Antioxidantes', 4),
-  ('Herramientas', 5),
-  ('Gas / Gastronomía', 6),
-  ('Lubricantes / Varios', 7),
-  ('Equipos / Máquinas', 8),
-  ('Sanitarios / Baño', 9),
-  ('Piletas / Tejidos', 10),
-  ('Andamios / Escaleras', 11),
-  ('Riego / Maquinaria', 12);
+create unique index categorias_nombre_unico
+  on public.categorias (lower(nombre));
 
 -- ---------------------------------------------------------------------
 -- 3. Tabla perfiles (extiende auth.users)
 -- ---------------------------------------------------------------------
 create table public.perfiles (
   id uuid primary key references auth.users (id) on delete cascade,
-  rol public.rol_usuario not null default 'ferreteria',
+  rol public.rol_usuario not null default 'cliente',
   nombre text not null,
   apellido text,
   razon_social text,
@@ -165,7 +156,7 @@ create policy "categorias_admin_write"
   with check (public.rol_actual() = 'admin');
 
 -- perfiles: cada quien ve el suyo; admin ve todo; vendedor ve las
--- ferreterías que él creó
+-- clientes que él creó
 create policy "perfiles_select_propio"
   on public.perfiles for select
   to authenticated
@@ -195,7 +186,7 @@ create policy "perfiles_admin_all"
 
 -- productos (tabla cruda, con precio_acordado incluido):
 -- SOLO admin y vendedor pueden verla directamente.
--- Las ferreterías NUNCA reciben select acá -> usan productos_vista.
+-- Los clientes NUNCA reciben select acá -> usan productos_vista.
 create policy "productos_select_admin_vendedor"
   on public.productos for select
   to authenticated

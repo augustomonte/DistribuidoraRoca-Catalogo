@@ -9,8 +9,8 @@ export default async function LoginPage({
   const { next, error } = await searchParams;
 
   return (
-    <div className="flex flex-1 flex-col items-center justify-center bg-roca-gris px-4 py-16">
-      <div className="w-full max-w-sm rounded-lg border border-roca-negro/10 bg-roca-blanco p-8 shadow-sm">
+    <div className="flex flex-1 flex-col items-center justify-center bg-tema-fondo px-4 py-16">
+      <div className="w-full max-w-sm rounded-lg border border-tema-tinta/10 bg-tema-papel p-8 shadow-sm">
         <div className="mb-6 flex justify-center">
           <Image
             src="/logo-mark.png"
@@ -21,7 +21,7 @@ export default async function LoginPage({
             className="h-20 w-20"
           />
         </div>
-        <h1 className="mb-6 text-center text-lg font-semibold text-roca-negro">
+        <h1 className="mb-6 text-center text-lg font-semibold text-tema-tinta">
           Ingresá a tu cuenta
         </h1>
         <LoginForm next={next} errorInicial={error} />

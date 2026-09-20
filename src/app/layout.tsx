@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { cliente } from "@/config/cliente";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -13,9 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Mayorista Roca Ferretería",
-  description:
-    "Distribuidora mayorista de artículos de ferretería en Argentina.",
+  title: cliente.marca.nombre,
+  description: cliente.marca.descripcion,
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
@@ -24,7 +24,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="es"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-roca-gris text-roca-negro">
+      <body className="min-h-full flex flex-col bg-tema-fondo text-tema-tinta">
         {children}
       </body>
     </html>

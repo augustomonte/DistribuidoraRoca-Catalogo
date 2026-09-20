@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/Button";
 import type { ProductoFormState } from "@/lib/actions/productos";
 import type { ProductoConMarca } from "@/lib/admin";
 import type { Categoria } from "@/types";
+import { cliente } from "@/config/cliente";
 
 type AccionProducto = (
   state: ProductoFormState,
@@ -27,6 +28,20 @@ export function ProductoForm({
   producto?: ProductoConMarca;
 }) {
   const [state, formAction, pending] = useActionState(accion, {});
+
+  const porcentajeDescuento = Math.round(
+    cliente.precios.descuentoPrecioAcordado * 100
+  );
+
+  // Los productos importados del Excel quedaron con acordado == catálogo,
+  // que es el estado "sin precio acordado propio". En esos casos dejamos el
+  // campo vacío para que al guardar se recalcule con el descuento, en vez de
+  // arrastrar el valor duplicado.
+  const acordadoInicial =
+    producto && producto.precio_acordado !== producto.precio_lista2
+      ? producto.precio_acordado
+      : "";
+
   const inputFotoRef = useRef<HTMLInputElement>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [nombreArchivo, setNombreArchivo] = useState<string | null>(null);
@@ -119,7 +134,7 @@ export function ProductoForm({
         </Select>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <div className="flex flex-col gap-1">
           <label htmlFor="precio" className="text-sm font-medium">
             Precio Catálogo (con IVA incluido) *
@@ -133,6 +148,28 @@ export function ProductoForm({
             required
             defaultValue={producto?.precio_lista2}
           />
+          <span className="text-xs text-tema-tinta/40">
+            Lo que ve el cliente final
+          </span>
+        </div>
+
+        <div className="flex flex-col gap-1">
+          <label htmlFor="precio_acordado" className="text-sm font-medium">
+            Precio Acordado
+          </label>
+          <Input
+            id="precio_acordado"
+            name="precio_acordado"
+            type="number"
+            step="0.01"
+            min="0"
+            placeholder={`Auto: −${porcentajeDescuento}%`}
+            defaultValue={acordadoInicial}
+          />
+          <span className="text-xs text-tema-tinta/40">
+            Solo lo ven admin y vendedores. Vacío = catálogo −
+            {porcentajeDescuento}%
+          </span>
         </div>
 
         <div className="flex flex-col gap-1">
@@ -142,10 +179,13 @@ export function ProductoForm({
           <Select
             id="iva_porcentaje"
             name="iva_porcentaje"
-            defaultValue={producto?.iva_porcentaje ?? 21}
+            defaultValue={producto?.iva_porcentaje ?? cliente.precios.alicuotasIva[0]}
           >
-            <option value="21">21%</option>
-            <option value="10.5">10.5%</option>
+            {cliente.precios.alicuotasIva.map((alicuota) => (
+              <option key={alicuota} value={alicuota}>
+                {alicuota}%
+              </option>
+            ))}
           </Select>
         </div>
       </div>
@@ -159,7 +199,7 @@ export function ProductoForm({
             <img
               src={previewUrl}
               alt="Vista previa"
-              className="h-24 w-24 rounded border border-roca-negro/10 object-contain"
+              className="h-24 w-24 rounded border border-tema-tinta/10 object-contain"
             />
           ) : producto?.foto_url ? (
             <Image
@@ -167,10 +207,10 @@ export function ProductoForm({
               alt={producto.nombre}
               width={96}
               height={96}
-              className="h-24 w-24 rounded border border-roca-negro/10 object-contain"
+              className="h-24 w-24 rounded border border-tema-tinta/10 object-contain"
             />
           ) : (
-            <div className="flex h-24 w-24 items-center justify-center rounded border border-dashed border-roca-negro/20 text-center text-xs text-roca-negro/40">
+            <div className="flex h-24 w-24 items-center justify-center rounded border border-dashed border-tema-tinta/20 text-center text-xs text-tema-tinta/40">
               Sin foto
             </div>
           )}
@@ -195,12 +235,12 @@ export function ProductoForm({
                 : "Subir foto"}
             </Button>
             {nombreArchivo && (
-              <span className="max-w-[200px] truncate text-xs text-roca-negro/60">
+              <span className="max-w-[200px] truncate text-xs text-tema-tinta/60">
                 {nombreArchivo}
               </span>
             )}
             {producto && !nombreArchivo && (
-              <span className="text-xs text-roca-negro/40">
+              <span className="text-xs text-tema-tinta/40">
                 Dejalo así para no cambiar la foto actual
               </span>
             )}

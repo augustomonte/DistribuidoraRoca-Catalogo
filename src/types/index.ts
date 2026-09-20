@@ -9,5 +9,5 @@ export type Marca = Database["public"]["Tables"]["marcas"]["Row"];
 export const RUTA_POR_ROL: Record<Perfil["rol"], string> = {
   admin: "/admin",
   vendedor: "/vendedor",
-  ferreteria: "/catalogo",
+  cliente: "/catalogo",
 };

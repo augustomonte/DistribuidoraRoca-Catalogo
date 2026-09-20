@@ -1,11 +1,12 @@
 import {
   obtenerVendedores,
-  obtenerFerreterias,
+  obtenerClientes,
   type OrdenPerfiles,
 } from "@/lib/admin";
 import { PerfilesTable } from "@/components/admin/PerfilesTable";
 import { CrearVendedorForm } from "@/components/admin/CrearVendedorForm";
-import { CrearFerreteriaForm } from "@/components/admin/CrearFerreteriaForm";
+import { CrearClienteForm } from "@/components/admin/CrearClienteForm";
+import { cliente } from "@/config/cliente";
 import { FormularioColapsable } from "@/components/admin/FormularioColapsable";
 import { BuscadorOrdenUsuarios } from "@/components/admin/BuscadorOrdenUsuarios";
 import { FiltroVendedor } from "@/components/admin/FiltroVendedor";
@@ -26,11 +27,12 @@ export default async function UsuariosPage({
   }>;
 }) {
   const { vq, vorden, fq, forden, fvendedor } = await searchParams;
+  const { clienteSingular, clientePlural } = cliente.etiquetas;
 
-  const [vendedores, todosLosVendedores, ferreterias] = await Promise.all([
+  const [vendedores, todosLosVendedores, clientes] = await Promise.all([
     obtenerVendedores({ busqueda: vq, orden: leerOrden(vorden) }),
     obtenerVendedores(),
-    obtenerFerreterias({
+    obtenerClientes({
       busqueda: fq,
       orden: leerOrden(forden),
       vendedorId: fvendedor,
@@ -39,12 +41,12 @@ export default async function UsuariosPage({
 
   return (
     <div>
-      <h1 className="mb-6 text-2xl font-bold text-roca-negro">Usuarios</h1>
+      <h1 className="mb-6 text-2xl font-bold text-tema-tinta">Usuarios</h1>
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
         <div className="flex flex-col gap-4">
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <h2 className="text-lg font-semibold text-roca-negro">
+            <h2 className="text-lg font-semibold text-tema-tinta">
               Vendedores
             </h2>
             <FormularioColapsable etiquetaBoton="Nuevo vendedor">
@@ -58,7 +60,7 @@ export default async function UsuariosPage({
             placeholder="Buscar vendedor..."
           />
 
-          <p className="text-sm text-roca-negro/50">
+          <p className="text-sm text-tema-tinta/50">
             {vendedores.length} vendedor{vendedores.length === 1 ? "" : "es"}
           </p>
 
@@ -67,18 +69,20 @@ export default async function UsuariosPage({
 
         <div className="flex flex-col gap-4">
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <h2 className="text-lg font-semibold text-roca-negro">
-              Ferreterías
+            <h2 className="text-lg font-semibold text-tema-tinta">
+              {clientePlural}
             </h2>
-            <FormularioColapsable etiquetaBoton="Nueva ferretería">
-              <CrearFerreteriaForm />
+            <FormularioColapsable
+              etiquetaBoton={`Agregar ${clienteSingular.toLowerCase()}`}
+            >
+              <CrearClienteForm />
             </FormularioColapsable>
           </div>
 
           <BuscadorOrdenUsuarios
             paramBusqueda="fq"
             paramOrden="forden"
-            placeholder="Buscar ferretería..."
+            placeholder={`Buscar ${clienteSingular.toLowerCase()}...`}
           />
 
           <FiltroVendedor
@@ -86,14 +90,18 @@ export default async function UsuariosPage({
             vendedores={todosLosVendedores}
           />
 
-          <p className="text-sm text-roca-negro/50">
-            {ferreterias.length} ferretería{ferreterias.length === 1 ? "" : "s"}
+          <p className="text-sm text-tema-tinta/50">
+            {clientes.length}{" "}
+            {(clientes.length === 1
+              ? clienteSingular
+              : clientePlural
+            ).toLowerCase()}
           </p>
 
           <PerfilesTable
-            perfiles={ferreterias}
+            perfiles={clientes}
             columnaExtra="vendedor"
-            accionEliminar="ferreteria"
+            accionEliminar="cliente"
           />
         </div>
       </div>

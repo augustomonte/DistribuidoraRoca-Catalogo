@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { crearAdmin } from "@/lib/actions/usuarios";
+import { cliente } from "@/config/cliente";
 
 export function CrearAdminForm() {
   const router = useRouter();
@@ -22,14 +23,15 @@ export function CrearAdminForm() {
     <form
       ref={formRef}
       action={formAction}
-      className="flex flex-col gap-4 rounded-lg border border-roca-negro/10 bg-roca-blanco p-5"
+      className="flex flex-col gap-4 rounded-lg border border-tema-tinta/10 bg-tema-papel p-5"
     >
-      <h2 className="text-base font-semibold text-roca-negro">
+      <h2 className="text-base font-semibold text-tema-tinta">
         Nuevo administrador
       </h2>
-      <p className="-mt-2 text-xs text-roca-negro/50">
-        Un administrador tiene acceso total: productos, marcas, vendedores,
-        ferreterías y puede crear otros administradores.
+      <p className="-mt-2 text-xs text-tema-tinta/50">
+        Un administrador tiene acceso total: productos, marcas, vendedores,{" "}
+        {cliente.etiquetas.clientePlural.toLowerCase()} y puede crear otros
+        administradores.
       </p>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">

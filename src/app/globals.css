@@ -4,13 +4,34 @@
   --background: #ffffff;
   --foreground: #1a1a1a;
 
-  /* Identidad visual Mayorista Roca Ferretería */
-  --color-roca-rojo: #b01020;
-  --color-roca-rojo-oscuro: #7a0b16;
-  --color-roca-amarillo: #ffd700;
-  --color-roca-negro: #1a1a1a;
-  --color-roca-blanco: #ffffff;
-  --color-roca-gris: #f5f5f5;
+  /* ===================================================================
+     PALETA DEL CLIENTE
+
+     Estos seis valores son TODO lo que hay que cambiar para revestir el
+     catálogo con la identidad de otra empresa. El resto del código usa
+     únicamente los nombres semánticos (tema-primario, tema-tinta, etc.),
+     nunca un color literal.
+
+     El resto de la configuración del cliente —nombre, logos, contacto,
+     textos, sucursales— vive en `src/config/cliente.ts`. Los colores
+     están acá y no allá porque Tailwind los necesita en tiempo de
+     compilación.
+
+     Cliente actual: Mayorista Roca Ferretería
+     =================================================================== */
+
+  /* Principal de la marca: acentos, etiquetas, llamados a la acción. */
+  --color-tema-primario: #b01020;
+  /* Variante oscura del principal: estados hover y activo. */
+  --color-tema-primario-oscuro: #7a0b16;
+  /* Realce: títulos y destaques sobre fondo oscuro. */
+  --color-tema-secundario: #ffd700;
+  /* Tinta: texto principal y superficies oscuras (hero, header, footer). */
+  --color-tema-tinta: #1a1a1a;
+  /* Papel: superficies claras (tarjetas, paneles, barras). */
+  --color-tema-papel: #ffffff;
+  /* Fondo general de la página. */
+  --color-tema-fondo: #f5f5f5;
 }
 
 @theme inline {
@@ -19,12 +40,12 @@
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 
-  --color-roca-rojo: var(--color-roca-rojo);
-  --color-roca-rojo-oscuro: var(--color-roca-rojo-oscuro);
-  --color-roca-amarillo: var(--color-roca-amarillo);
-  --color-roca-negro: var(--color-roca-negro);
-  --color-roca-blanco: var(--color-roca-blanco);
-  --color-roca-gris: var(--color-roca-gris);
+  --color-tema-primario: var(--color-tema-primario);
+  --color-tema-primario-oscuro: var(--color-tema-primario-oscuro);
+  --color-tema-secundario: var(--color-tema-secundario);
+  --color-tema-tinta: var(--color-tema-tinta);
+  --color-tema-papel: var(--color-tema-papel);
+  --color-tema-fondo: var(--color-tema-fondo);
 }
 
 body {

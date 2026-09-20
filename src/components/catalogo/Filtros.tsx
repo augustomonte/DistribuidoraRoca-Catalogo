@@ -31,7 +31,7 @@ export function Filtros({ marcas }: { marcas: string[] }) {
   }
 
   return (
-    <div className="mb-6 flex flex-col gap-3 rounded-lg border border-roca-negro/10 bg-roca-blanco p-4 sm:flex-row sm:items-center">
+    <div className="mb-6 flex flex-col gap-3 rounded-lg border border-tema-tinta/10 bg-tema-papel p-4 sm:flex-row sm:items-center">
       <form onSubmit={handleBuscar} className="flex flex-1 gap-2">
         <Input
           placeholder="Buscar por nombre o código..."
@@ -44,7 +44,7 @@ export function Filtros({ marcas }: { marcas: string[] }) {
       </form>
 
       <select
-        className="rounded-md border border-roca-negro/20 bg-roca-blanco px-3 py-2 text-sm text-roca-negro focus:outline-none focus:ring-2 focus:ring-roca-rojo"
+        className="rounded-md border border-tema-tinta/20 bg-tema-papel px-3 py-2 text-sm text-tema-tinta focus:outline-none focus:ring-2 focus:ring-tema-primario"
         value={searchParams.get("marca") ?? ""}
         onChange={(e) => actualizarParametro("marca", e.target.value)}
       >
@@ -57,7 +57,7 @@ export function Filtros({ marcas }: { marcas: string[] }) {
       </select>
 
       <select
-        className="rounded-md border border-roca-negro/20 bg-roca-blanco px-3 py-2 text-sm text-roca-negro focus:outline-none focus:ring-2 focus:ring-roca-rojo"
+        className="rounded-md border border-tema-tinta/20 bg-tema-papel px-3 py-2 text-sm text-tema-tinta focus:outline-none focus:ring-2 focus:ring-tema-primario"
         value={searchParams.get("orden") ?? "nombre_asc"}
         onChange={(e) => actualizarParametro("orden", e.target.value)}
       >

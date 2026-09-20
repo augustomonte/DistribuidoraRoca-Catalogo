@@ -1,4 +1,4 @@
-export type RolUsuario = "admin" | "vendedor" | "ferreteria";
+export type RolUsuario = "admin" | "vendedor" | "cliente";
 
 export type Database = {
   public: {
@@ -7,17 +7,17 @@ export type Database = {
         Row: {
           id: number;
           nombre: string;
-          sector_numero: number;
+          orden: number;
         };
         Insert: {
           id?: number;
           nombre: string;
-          sector_numero: number;
+          orden: number;
         };
         Update: {
           id?: number;
           nombre?: string;
-          sector_numero?: number;
+          orden?: number;
         };
         Relationships: [];
       };

@@ -34,15 +34,15 @@ export function Paginacion({
         return (
           <span key={pagina} className="flex items-center gap-1">
             {mostrarPuntos && (
-              <span className="px-2 text-roca-negro/40">…</span>
+              <span className="px-2 text-tema-tinta/40">…</span>
             )}
             <Link
               href={hrefParaPagina(pagina)}
               className={cn(
                 "flex h-9 min-w-9 items-center justify-center rounded-md px-2 text-sm font-medium",
                 pagina === paginaActual
-                  ? "bg-roca-rojo text-roca-blanco"
-                  : "text-roca-negro/70 hover:bg-roca-negro/5"
+                  ? "bg-tema-primario text-tema-papel"
+                  : "text-tema-tinta/70 hover:bg-tema-tinta/5"
               )}
             >
               {pagina}

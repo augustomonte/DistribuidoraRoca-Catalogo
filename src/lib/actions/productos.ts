@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getPerfilActual } from "@/lib/auth";
 import { obtenerOCrearMarcaId } from "@/lib/marcas";
+import { cliente, calcularPrecioAcordado } from "@/config/cliente";
 
 export interface ProductoFormState {
   error?: string;
@@ -25,6 +26,7 @@ function leerCamposProducto(formData: FormData) {
   const marca = String(formData.get("marca") ?? "").trim();
   const categoriaIdRaw = String(formData.get("categoria_id") ?? "");
   const precioRaw = String(formData.get("precio") ?? "");
+  const precioAcordadoRaw = String(formData.get("precio_acordado") ?? "").trim();
   const ivaRaw = String(formData.get("iva_porcentaje") ?? "21");
 
   if (!codigo || !nombre) {
@@ -35,10 +37,32 @@ function leerCamposProducto(formData: FormData) {
   const iva = Number(ivaRaw);
 
   if (Number.isNaN(precio) || precio < 0) {
-    return { error: "El precio no es válido." } as const;
+    return { error: "El precio de catálogo no es válido." } as const;
   }
-  if (iva !== 21 && iva !== 10.5) {
-    return { error: "El % de IVA debe ser 21 o 10.5." } as const;
+  if (!cliente.precios.alicuotasIva.includes(iva)) {
+    return {
+      error: `El % de IVA debe ser ${cliente.precios.alicuotasIva.join(" o ")}.`,
+    } as const;
+  }
+
+  // El precio acordado (el reservado, que solo ven admin y vendedores) es
+  // opcional: si el admin no lo carga, se deriva del precio de catálogo
+  // con el descuento configurado en config/cliente.ts.
+  let precioAcordado: number;
+
+  if (precioAcordadoRaw) {
+    precioAcordado = Number(precioAcordadoRaw.replace(",", "."));
+    if (Number.isNaN(precioAcordado) || precioAcordado < 0) {
+      return { error: "El precio acordado no es válido." } as const;
+    }
+    if (precioAcordado > precio) {
+      return {
+        error:
+          "El precio acordado no puede ser mayor al de catálogo: es el precio reservado para vendedores.",
+      } as const;
+    }
+  } else {
+    precioAcordado = calcularPrecioAcordado(precio);
   }
 
   const categoriaId = categoriaIdRaw ? Number(categoriaIdRaw) : null;
@@ -50,7 +74,7 @@ function leerCamposProducto(formData: FormData) {
       nombre,
       descripcion: descripcion || null,
       categoria_id: categoriaId,
-      precio_acordado: precio,
+      precio_acordado: precioAcordado,
       precio_lista2: precio,
       iva_porcentaje: iva,
       stock_disponible: formData.get("stock_disponible") === "on",

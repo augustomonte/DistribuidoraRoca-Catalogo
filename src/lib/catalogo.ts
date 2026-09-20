@@ -85,8 +85,11 @@ async function contarConTermino({
 
   let query = supabase
     .from("productos_vista")
-    .select("id", { count: "exact", head: true })
-    .or(`nombre.ilike.%${termino}%,codigo.ilike.%${termino}%`);
+    .select("id", { count: "exact", head: true });
+
+  for (const palabra of termino.split(/\s+/).filter(Boolean)) {
+    query = query.or(`nombre.ilike.%${palabra}%,codigo.ilike.%${palabra}%`);
+  }
 
   if (categoriaId) {
     query = query.eq("categoria_id", categoriaId);
@@ -105,7 +108,7 @@ export async function obtenerCategorias(): Promise<Categoria[]> {
   const { data, error } = await supabase
     .from("categorias")
     .select("*")
-    .order("sector_numero", { ascending: true });
+    .order("orden", { ascending: true });
 
   if (error) throw error;
   return data ?? [];

@@ -5,7 +5,7 @@
  * veces sobre el mapeo inicial supuesto por nombre de columna):
  *   CODIGO        -> codigo (único, sin duplicados)
  *   DESCRIPCION   -> nombre
- *   SECTOR        -> categoria_id (via categorias.sector_numero, 1-12)
+ *   SECTOR        -> categoria_id (via categorias.orden, 1-12)
  *   BIEN_USO      -> iva_porcentaje ('S'=10.5, 'N'=21; único criterio,
  *                    OPCIFAC/IVA_APLICADO ya NO se usan)
  *   LISTA_5       -> precio base; el precio final que se guarda en
@@ -85,10 +85,10 @@ async function main() {
   const filas = XLSX.utils.sheet_to_json<FilaExcel>(hoja, { defval: null });
   console.log(`Total filas leídas: ${filas.length}`);
 
-  // Categorías ya existen (seed inicial 1-12); mapeamos por sector_numero.
+  // Categorías ya existen (supabase/seeds/roca-categorias.sql); mapeamos por orden.
   const { data: categorias, error: errorCategorias } = await supabase
     .from("categorias")
-    .select("id, sector_numero");
+    .select("id, orden");
 
   if (errorCategorias) {
     console.error("Error leyendo categorías:", errorCategorias.message);
@@ -97,7 +97,7 @@ async function main() {
 
   const mapaCategorias = new Map<number, number>();
   for (const c of categorias ?? []) {
-    mapaCategorias.set(c.sector_numero, c.id);
+    mapaCategorias.set(c.orden, c.id);
   }
   console.log(`✓ Categorías disponibles: ${mapaCategorias.size}`);
 

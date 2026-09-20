@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getPerfilActual } from "@/lib/auth";
 import { PROVINCIAS_ARGENTINA } from "@/lib/provincias";
+import { cliente } from "@/config/cliente";
 
 export interface UsuarioFormState {
   error?: string;
@@ -137,7 +138,7 @@ export async function crearAdmin(
   return { ok: true };
 }
 
-export async function crearFerreteria(
+export async function crearCliente(
   _prevState: UsuarioFormState,
   formData: FormData
 ): Promise<UsuarioFormState> {
@@ -180,7 +181,7 @@ export async function crearFerreteria(
 
   const { error: perfilError } = await admin.from("perfiles").insert({
     id: nuevoUsuario.user.id,
-    rol: "ferreteria",
+    rol: "cliente",
     nombre,
     razon_social: razonSocial,
     telefono: telefono || null,
@@ -196,12 +197,12 @@ export async function crearFerreteria(
     return { error: perfilError.message };
   }
 
-  revalidatePath("/vendedor/ferreterias");
+  revalidatePath("/vendedor/clientes");
   revalidatePath("/admin/usuarios");
   return { ok: true };
 }
 
-export async function eliminarFerreteria(id: string) {
+export async function eliminarCliente(id: string) {
   await requireAdmin();
   const supabase = await createClient();
 
@@ -211,8 +212,10 @@ export async function eliminarFerreteria(id: string) {
     .eq("id", id)
     .single();
 
-  if (!perfil || perfil.rol !== "ferreteria") {
-    throw new Error("Solo se pueden eliminar cuentas de ferretería.");
+  if (!perfil || perfil.rol !== "cliente") {
+    throw new Error(
+      `Solo se pueden eliminar cuentas de ${cliente.etiquetas.clienteSingular.toLowerCase()}.`
+    );
   }
 
   // Borra el usuario de Supabase Auth; el perfil se borra solo por el
@@ -221,7 +224,7 @@ export async function eliminarFerreteria(id: string) {
   const { error } = await admin.auth.admin.deleteUser(id);
   if (error) throw new Error(error.message);
 
-  revalidatePath("/vendedor/ferreterias");
+  revalidatePath("/vendedor/clientes");
   revalidatePath("/admin/usuarios");
 }
 
@@ -251,10 +254,10 @@ export async function eliminarVendedor(
     .eq("creado_por", id);
 
   if (count && count > 0) {
+    const { clienteSingular, clientePlural } = cliente.etiquetas;
+    const etiqueta = (count === 1 ? clienteSingular : clientePlural).toLowerCase();
     return {
-      error: `No se puede eliminar: tiene ${count} ferretería${
-        count === 1 ? "" : "s"
-      } creada${count === 1 ? "" : "s"}. Reasigná o eliminá esas cuentas primero.`,
+      error: `No se puede eliminar: tiene ${count} ${etiqueta} a su cargo. Reasigná o eliminá esas cuentas primero.`,
     };
   }
 

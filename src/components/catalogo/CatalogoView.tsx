@@ -46,13 +46,13 @@ export async function CatalogoView({
     <div>
       <Filtros marcas={marcas} />
 
-      <p className="mb-4 text-sm text-roca-negro/50">
+      <p className="mb-4 text-sm text-tema-tinta/50">
         {total} producto{total === 1 ? "" : "s"} encontrado
         {total === 1 ? "" : "s"}
       </p>
 
       {productos.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-roca-negro/20 py-24 text-center text-roca-negro/50">
+        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-tema-tinta/20 py-24 text-center text-tema-tinta/50">
           No se encontraron productos con estos filtros.
         </div>
       ) : (

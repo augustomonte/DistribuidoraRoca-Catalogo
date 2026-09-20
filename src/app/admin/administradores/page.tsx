@@ -8,7 +8,7 @@ export default async function AdministradoresPage() {
   return (
     <div className="flex flex-col gap-8">
       <div>
-        <h1 className="mb-6 text-2xl font-bold text-roca-negro">
+        <h1 className="mb-6 text-2xl font-bold text-tema-tinta">
           Administradores
         </h1>
         <PerfilesTable perfiles={administradores} />

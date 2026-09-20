@@ -31,8 +31,8 @@ export function NavList({ items }: { items: NavItem[] }) {
             className={cn(
               "rounded-md px-3 py-2 text-sm font-medium transition-colors duration-150",
               activo
-                ? "bg-roca-rojo/10 text-roca-rojo"
-                : "text-roca-negro/80 hover:bg-roca-negro/5"
+                ? "bg-tema-primario/10 text-tema-primario"
+                : "text-tema-tinta/80 hover:bg-tema-tinta/5"
             )}
           >
             {item.label}

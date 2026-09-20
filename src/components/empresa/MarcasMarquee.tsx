@@ -30,9 +30,9 @@ export function MarcasMarquee() {
   const logosDuplicados = [...logos, ...logos];
 
   return (
-    <section className="bg-roca-gris py-16">
+    <section className="bg-tema-fondo py-16">
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
-        <h2 className="mb-10 text-center text-2xl font-extrabold tracking-tight text-roca-negro sm:text-3xl">
+        <h2 className="mb-10 text-center text-2xl font-extrabold tracking-tight text-tema-tinta sm:text-3xl">
           Marcas que trabajamos
         </h2>
       </div>

@@ -1,17 +1,35 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { updateSession } from "@/lib/supabase/middleware";
 import { RUTA_POR_ROL } from "@/types";
+import { devSinLogin, rolDevSinLogin } from "@/lib/dev-sin-login";
 import type { RolUsuario } from "@/types/database.types";
 
 const RUTAS_POR_PREFIJO: { prefijo: string; rolesPermitidos: RolUsuario[] }[] = [
   { prefijo: "/admin", rolesPermitidos: ["admin"] },
   { prefijo: "/vendedor", rolesPermitidos: ["admin", "vendedor"] },
-  { prefijo: "/catalogo", rolesPermitidos: ["admin", "vendedor", "ferreteria"] },
+  { prefijo: "/catalogo", rolesPermitidos: ["admin", "vendedor", "cliente"] },
 ];
 
 export async function proxy(request: NextRequest) {
-  const { supabase, supabaseResponse, user } = await updateSession(request);
   const { pathname } = request.nextUrl;
+
+  // TEMPORAL — modo desarrollo sin login (ver src/lib/dev-sin-login.ts).
+  // Dejamos pasar todo sin mirar sesión ni rol. getPerfilActual() devuelve
+  // un perfil simulado, así que los layouts protegidos siguen funcionando.
+  if (devSinLogin) {
+    // En este modo el login no tiene sentido: si caés ahí (por ejemplo
+    // desde el botón "Iniciar sesión" de la home) te mandamos derecho al
+    // panel del rol que estés simulando, en vez de mostrarte el formulario.
+    if (pathname === "/login") {
+      const url = request.nextUrl.clone();
+      url.pathname = RUTA_POR_ROL[rolDevSinLogin ?? "admin"];
+      url.search = "";
+      return NextResponse.redirect(url);
+    }
+    return NextResponse.next();
+  }
+
+  const { supabase, supabaseResponse, user } = await updateSession(request);
 
   const rutaProtegida = RUTAS_POR_PREFIJO.find((r) =>
     pathname.startsWith(r.prefijo)

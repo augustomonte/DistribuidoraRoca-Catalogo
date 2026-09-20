@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { WhatsAppButton } from "@/components/layout/WhatsAppButton";
+import { BannerDev } from "@/components/layout/BannerDev";
 import type { Perfil } from "@/types";
 
 export function SeccionProtegida({
@@ -13,6 +14,7 @@ export function SeccionProtegida({
 }) {
   return (
     <div className="flex flex-1 flex-col">
+      <BannerDev />
       <Header perfil={perfil} />
       <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-6 sm:px-6">
         {children}

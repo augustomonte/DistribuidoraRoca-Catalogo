@@ -1,8 +1,8 @@
 "use client";
 
-import { eliminarFerreteria } from "@/lib/actions/usuarios";
+import { eliminarCliente } from "@/lib/actions/usuarios";
 
-export function EliminarFerreteriaBoton({
+export function EliminarClienteBoton({
   id,
   nombre,
 }: {
@@ -11,7 +11,7 @@ export function EliminarFerreteriaBoton({
 }) {
   return (
     <form
-      action={eliminarFerreteria.bind(null, id)}
+      action={eliminarCliente.bind(null, id)}
       onSubmit={(e) => {
         if (
           !confirm(

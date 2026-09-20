@@ -22,9 +22,9 @@ export function CrearVendedorForm() {
     <form
       ref={formRef}
       action={formAction}
-      className="flex flex-col gap-4 rounded-lg border border-roca-negro/10 bg-roca-blanco p-5"
+      className="flex flex-col gap-4 rounded-lg border border-tema-tinta/10 bg-tema-papel p-5"
     >
-      <h2 className="text-base font-semibold text-roca-negro">
+      <h2 className="text-base font-semibold text-tema-tinta">
         Nuevo vendedor
       </h2>
 

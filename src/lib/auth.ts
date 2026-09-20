@@ -1,5 +1,6 @@
 import { headers } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
+import { devSinLogin, perfilDev } from "@/lib/dev-sin-login";
 import type { Perfil } from "@/types";
 
 /**
@@ -12,6 +13,9 @@ import type { Perfil } from "@/types";
  * proxy, llamada directa, etc.) cae al camino original consultando Supabase.
  */
 export async function getPerfilActual(): Promise<Perfil | null> {
+  // TEMPORAL — modo desarrollo sin login (ver src/lib/dev-sin-login.ts).
+  if (devSinLogin) return perfilDev();
+
   const headersList = await headers();
   const perfilHeader = headersList.get("x-perfil");
 

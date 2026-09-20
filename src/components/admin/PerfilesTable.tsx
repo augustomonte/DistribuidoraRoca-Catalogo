@@ -1,5 +1,5 @@
 import { alternarActivoPerfil } from "@/lib/actions/usuarios";
-import { EliminarFerreteriaBoton } from "@/components/admin/EliminarFerreteriaBoton";
+import { EliminarClienteBoton } from "@/components/admin/EliminarClienteBoton";
 import { EliminarVendedorBoton } from "@/components/admin/EliminarVendedorBoton";
 import type { Perfil } from "@/types";
 
@@ -12,20 +12,20 @@ export function PerfilesTable({
   perfiles: (Perfil & { vendedor?: Pick<Perfil, "nombre" | "apellido"> | null })[];
   columnaExtra?: "razon_social" | "vendedor";
   soloLectura?: boolean;
-  accionEliminar?: "ferreteria" | "vendedor";
+  accionEliminar?: "cliente" | "vendedor";
 }) {
   if (perfiles.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-roca-negro/20 py-16 text-center text-roca-negro/50">
+      <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-tema-tinta/20 py-16 text-center text-tema-tinta/50">
         Todavía no hay registros.
       </div>
     );
   }
 
   return (
-    <div className="overflow-x-auto rounded-lg border border-roca-negro/10 bg-roca-blanco">
+    <div className="overflow-x-auto rounded-lg border border-tema-tinta/10 bg-tema-papel">
       <table className="w-full min-w-[700px] text-left text-sm">
-        <thead className="border-b border-roca-negro/10 bg-roca-gris text-xs uppercase text-roca-negro/60">
+        <thead className="border-b border-tema-tinta/10 bg-tema-fondo text-xs uppercase text-tema-tinta/60">
           <tr>
             <th className="px-4 py-3">
               {columnaExtra === "vendedor" ? "Razón social" : "Nombre"}
@@ -48,9 +48,9 @@ export function PerfilesTable({
           {perfiles.map((perfil) => (
             <tr
               key={perfil.id}
-              className="border-b border-roca-negro/5 transition-colors duration-150 last:border-0 hover:bg-roca-gris/60"
+              className="border-b border-tema-tinta/5 transition-colors duration-150 last:border-0 hover:bg-tema-fondo/60"
             >
-              <td className="px-4 py-3 font-medium text-roca-negro">
+              <td className="px-4 py-3 font-medium text-tema-tinta">
                 {columnaExtra === "vendedor"
                   ? perfil.razon_social || "—"
                   : `${perfil.nombre} ${perfil.apellido ?? ""}`}
@@ -58,7 +58,7 @@ export function PerfilesTable({
               {columnaExtra === "razon_social" && (
                 <>
                   <td className="px-4 py-3">{perfil.razon_social ?? "—"}</td>
-                  <td className="px-4 py-3 text-roca-negro/70">
+                  <td className="px-4 py-3 text-tema-tinta/70">
                     {perfil.ciudad || perfil.provincia
                       ? [perfil.ciudad, perfil.provincia]
                           .filter(Boolean)
@@ -80,7 +80,7 @@ export function PerfilesTable({
                   className={
                     perfil.activo
                       ? "rounded bg-green-100 px-2 py-1 text-xs font-semibold text-green-700"
-                      : "rounded bg-roca-negro/10 px-2 py-1 text-xs font-semibold text-roca-negro/50"
+                      : "rounded bg-tema-tinta/10 px-2 py-1 text-xs font-semibold text-tema-tinta/50"
                   }
                 >
                   {perfil.activo ? "Activo" : "Inactivo"}
@@ -98,14 +98,14 @@ export function PerfilesTable({
                     >
                       <button
                         type="submit"
-                        className="rounded-md border border-roca-negro/20 px-3 py-1.5 text-xs font-medium hover:bg-roca-negro/5"
+                        className="rounded-md border border-tema-tinta/20 px-3 py-1.5 text-xs font-medium hover:bg-tema-tinta/5"
                       >
                         {perfil.activo ? "Desactivar" : "Activar"}
                       </button>
                     </form>
 
-                    {accionEliminar === "ferreteria" && (
-                      <EliminarFerreteriaBoton
+                    {accionEliminar === "cliente" && (
+                      <EliminarClienteBoton
                         id={perfil.id}
                         nombre={perfil.razon_social || perfil.nombre}
                       />

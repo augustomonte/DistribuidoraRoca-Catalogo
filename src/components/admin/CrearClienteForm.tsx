@@ -5,12 +5,14 @@ import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import { Button } from "@/components/ui/Button";
-import { crearFerreteria } from "@/lib/actions/usuarios";
+import { crearCliente } from "@/lib/actions/usuarios";
 import { PROVINCIAS_ARGENTINA } from "@/lib/provincias";
+import { cliente } from "@/config/cliente";
 
-export function CrearFerreteriaForm() {
+export function CrearClienteForm() {
   const router = useRouter();
-  const [state, formAction, pending] = useActionState(crearFerreteria, {});
+  const [state, formAction, pending] = useActionState(crearCliente, {});
+  const etiqueta = cliente.etiquetas.clienteSingular.toLowerCase();
   const formRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
@@ -24,10 +26,10 @@ export function CrearFerreteriaForm() {
     <form
       ref={formRef}
       action={formAction}
-      className="flex flex-col gap-4 rounded-lg border border-roca-negro/10 bg-roca-blanco p-5"
+      className="flex flex-col gap-4 rounded-lg border border-tema-tinta/10 bg-tema-papel p-5"
     >
-      <h2 className="text-base font-semibold text-roca-negro">
-        Nueva ferretería
+      <h2 className="text-base font-semibold text-tema-tinta">
+        Agregar {etiqueta}
       </h2>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -105,12 +107,12 @@ export function CrearFerreteriaForm() {
       )}
       {state.ok && (
         <p className="rounded-md bg-green-50 px-3 py-2 text-sm text-green-700">
-          Ferretería creada correctamente.
+          Cuenta de {etiqueta} creada correctamente.
         </p>
       )}
 
       <Button type="submit" disabled={pending} className="w-fit">
-        {pending ? "Creando..." : "Crear ferretería"}
+        {pending ? "Creando..." : `Crear ${etiqueta}`}
       </Button>
     </form>
   );

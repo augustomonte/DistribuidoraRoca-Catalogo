@@ -1,49 +1,37 @@
-interface Ubicacion {
-  titulo: string;
-  direccion: string;
-  telefono: string;
-  mapaUrl: string;
-}
-
-const UBICACIONES: Ubicacion[] = [
-  {
-    titulo: "Venta Mayorista y Distribución",
-    direccion: "Ayacucho 1139, Merlo, Buenos Aires",
-    telefono: "0220 482 2242",
-    mapaUrl:
-      "https://maps.google.com/maps?q=Ayacucho+1139+Merlo+Buenos+Aires+Argentina&output=embed",
-  },
-  {
-    titulo: "Ferretería Roca — Venta al Público",
-    direccion: "Av. Calle Real 1225, Merlo, Buenos Aires",
-    telefono: "0220 485 7790",
-    mapaUrl:
-      "https://maps.google.com/maps?q=Av+Calle+Real+1225+Merlo+Buenos+Aires+Argentina&output=embed",
-  },
-];
+import { cliente } from "@/config/cliente";
 
 export function Ubicaciones() {
+  const UBICACIONES = cliente.ubicaciones;
+
+  if (UBICACIONES.length === 0) return null;
+
   return (
-    <section className="bg-roca-blanco px-4 py-16 sm:px-6">
+    <section className="bg-tema-papel px-4 py-16 sm:px-6">
       <div className="mx-auto max-w-6xl">
-        <h2 className="mb-10 text-center text-2xl font-extrabold tracking-tight text-roca-negro sm:text-3xl">
+        <h2 className="mb-10 text-center text-2xl font-extrabold tracking-tight text-tema-tinta sm:text-3xl">
           Dónde encontrarnos
         </h2>
 
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+        <div
+          className={
+            UBICACIONES.length > 1
+              ? "grid grid-cols-1 gap-6 md:grid-cols-2"
+              : "mx-auto grid max-w-3xl grid-cols-1 gap-6"
+          }
+        >
           {UBICACIONES.map((ubicacion) => (
             <div
               key={ubicacion.titulo}
-              className="flex flex-col gap-5 rounded-2xl border border-roca-negro/10 bg-roca-blanco p-6 shadow-md md:flex-row md:items-center"
+              className="flex flex-col gap-5 rounded-2xl border border-tema-tinta/10 bg-tema-papel p-6 shadow-md md:flex-row md:items-center"
             >
               <div className="flex-1">
-                <h3 className="text-lg font-bold text-roca-negro">
+                <h3 className="text-lg font-bold text-tema-tinta">
                   {ubicacion.titulo}
                 </h3>
-                <p className="mt-2 text-sm text-roca-negro/70">
+                <p className="mt-2 text-sm text-tema-tinta/70">
                   {ubicacion.direccion}
                 </p>
-                <p className="mt-1 text-sm text-roca-negro/70">
+                <p className="mt-1 text-sm text-tema-tinta/70">
                   {ubicacion.telefono}
                 </p>
               </div>

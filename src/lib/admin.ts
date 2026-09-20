@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import type { Perfil, Producto } from "@/types";
+import type { Categoria, Perfil, Producto } from "@/types";
 
 export const ADMIN_PRODUCTOS_POR_PAGINA = 50;
 
@@ -50,8 +50,8 @@ export async function obtenerProductosAdmin({
 
   if (busqueda) {
     const termino = busqueda.trim().replace(/[%,]/g, "");
-    if (termino) {
-      query = query.or(`nombre.ilike.%${termino}%,codigo.ilike.%${termino}%`);
+    for (const palabra of termino.split(/\s+/).filter(Boolean)) {
+      query = query.or(`nombre.ilike.%${palabra}%,codigo.ilike.%${palabra}%`);
     }
   }
 
@@ -73,6 +73,39 @@ export async function obtenerProductoPorId(
 
   if (error) return null;
   return data as unknown as ProductoConMarca;
+}
+
+export async function obtenerCategoriasConConteo(): Promise<
+  (Categoria & { cantidadProductos: number })[]
+> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("categorias")
+    .select("*, productos(count)")
+    .order("orden", { ascending: true });
+
+  if (error) throw error;
+
+  return ((data ?? []) as unknown as (Categoria & {
+    productos: { count: number }[];
+  })[]).map(({ productos, ...categoria }) => ({
+    ...categoria,
+    cantidadProductos: productos[0]?.count ?? 0,
+  }));
+}
+
+export async function obtenerCategoriaPorId(
+  id: number
+): Promise<Categoria | null> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("categorias")
+    .select("*")
+    .eq("id", id)
+    .single();
+
+  if (error) return null;
+  return data;
 }
 
 export async function obtenerAdministradores(): Promise<Perfil[]> {
@@ -116,7 +149,7 @@ export async function obtenerVendedores({
   return data ?? [];
 }
 
-export async function obtenerFerreterias({
+export async function obtenerClientes({
   busqueda,
   orden = "nombre_asc",
   vendedorId,
@@ -132,7 +165,7 @@ export async function obtenerFerreterias({
   let query = supabase
     .from("perfiles")
     .select("*, vendedor:creado_por(id, nombre, apellido)")
-    .eq("rol", "ferreteria")
+    .eq("rol", "cliente")
     .order("razon_social", { ascending: orden !== "nombre_desc" });
 
   if (vendedorId) {
