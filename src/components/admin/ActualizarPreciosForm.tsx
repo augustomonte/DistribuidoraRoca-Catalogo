@@ -3,6 +3,7 @@
 import { useActionState, useState, useTransition } from "react";
 import { Button } from "@/components/ui/Button";
 import { formatearPrecio } from "@/lib/utils";
+import { etiquetaFacturacion } from "@/config/cliente";
 import {
   previsualizarPreciosMasivo,
   confirmarPreciosMasivo,
@@ -75,8 +76,17 @@ export function ActualizarPreciosForm() {
           <p className="rounded-md bg-amber-50 px-3 py-2 text-sm text-amber-700">
             {preview.filasInvalidas} fila
             {preview.filasInvalidas === 1 ? "" : "s"} del archivo no se{" "}
-            {preview.filasInvalidas === 1 ? "pudo" : "pudieron"} leer (código
-            o precio inválido) y no se van a tocar.
+            {preview.filasInvalidas === 1 ? "pudo" : "pudieron"} leer (código,
+            precio u opción de facturación inválidos) y no se van a tocar.
+          </p>
+        )}
+
+        {!!preview.filasDuplicadas && (
+          <p className="rounded-md bg-amber-50 px-3 py-2 text-sm text-amber-700">
+            {preview.filasDuplicadas} código
+            {preview.filasDuplicadas === 1 ? "" : "s"} aparece
+            {preview.filasDuplicadas === 1 ? "" : "n"} más de una vez en el
+            archivo: se usa la última fila de cada uno.
           </p>
         )}
 
@@ -108,6 +118,7 @@ export function ActualizarPreciosForm() {
                 <th className="px-3 py-2">Nombre</th>
                 <th className="px-3 py-2 text-right">Precio actual</th>
                 <th className="px-3 py-2 text-right">Precio nuevo</th>
+                <th className="px-3 py-2">Facturación</th>
               </tr>
             </thead>
             <tbody>
@@ -125,6 +136,9 @@ export function ActualizarPreciosForm() {
                   </td>
                   <td className="px-3 py-2 text-right font-medium text-tema-tinta">
                     {formatearPrecio(fila.precioNuevo)}
+                  </td>
+                  <td className="px-3 py-2 text-xs text-tema-tinta/60">
+                    {etiquetaFacturacion(fila.opcionNueva) ?? "sin cambio"}
                   </td>
                 </tr>
               ))}
@@ -168,11 +182,11 @@ export function ActualizarPreciosForm() {
           Actualización masiva de precios
         </h2>
         <p className="mt-1 text-sm text-tema-tinta/60">
-          Subí un archivo .xlsx o .csv con columnas <code>codigo</code> y{" "}
-          <code>precio</code> (el precio de catálogo, ya con IVA incluido).
-          El precio acordado se recalcula con el descuento configurado, así
-          que si le pisaste un acordado a mano a algún producto, se pierde
-          ese ajuste.
+          Subí un archivo .xlsx o .csv con las columnas <code>codigo</code>,{" "}
+          <code>precio</code> y <code>opcion_facturacion</code> (1, 2 o 3).
+          El precio se guarda tal cual está en el archivo, sin cálculos. Si
+          la columna de facturación no está o una celda viene vacía, se
+          conserva la que ya tenía el producto.
         </p>
         <a
           href="/plantilla-precios.xlsx"

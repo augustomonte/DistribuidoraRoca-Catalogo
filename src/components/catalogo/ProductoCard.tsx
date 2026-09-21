@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { formatearPrecioConIva, formatearFechaRelativa } from "@/lib/utils";
+import { formatearPrecioConFacturacion, formatearFechaRelativa } from "@/lib/utils";
 import { BotonAgregarCarrito } from "@/components/catalogo/BotonAgregarCarrito";
 import type { ProductoVista } from "@/types";
 
@@ -59,15 +59,10 @@ export function ProductoCard({
           </p>
 
           <div className="mt-auto pt-2">
-            <p className="flex items-center gap-1.5 text-base font-bold text-tema-tinta">
-              {formatearPrecioConIva(producto.precio, producto.iva_porcentaje)}
-              {producto.nota_iva === "3" && (
-                <span
-                  title="Nota 3"
-                  className="text-sm font-normal text-tema-tinta/40"
-                >
-                  ③
-                </span>
+            <p className="text-base font-bold text-tema-tinta">
+              {formatearPrecioConFacturacion(
+                producto.precio,
+                producto.opcion_facturacion
               )}
             </p>
             {producto.unidad_venta && (

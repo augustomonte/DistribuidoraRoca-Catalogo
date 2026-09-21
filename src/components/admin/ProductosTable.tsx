@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { formatearPrecioConIva, formatearFechaRelativa } from "@/lib/utils";
+import { formatearPrecioConFacturacion, formatearFechaRelativa } from "@/lib/utils";
 import { alternarActivoProducto } from "@/lib/actions/productos";
 import { EliminarProductoBoton } from "@/components/admin/EliminarProductoBoton";
 import type { ProductoConMarca } from "@/lib/admin";
@@ -50,9 +50,9 @@ export function ProductosTable({
                 {producto.foto_url ? "Sí" : "No"}
               </td>
               <td className="px-4 py-3">
-                {formatearPrecioConIva(
+                {formatearPrecioConFacturacion(
                   producto.precio_lista2,
-                  producto.iva_porcentaje
+                  producto.opcion_facturacion
                 )}
               </td>
               <td

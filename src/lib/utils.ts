@@ -1,5 +1,6 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { etiquetaFacturacion } from "@/config/cliente";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -16,14 +17,18 @@ export function formatearPrecio(precio: number): string {
 }
 
 /**
- * Formatea el precio (ya con el IVA incluido) junto a la alícuota
- * correspondiente, a modo informativo: "$ 1.785,86 · IVA 21%"
+ * Precio junto a su opción de facturación, a modo informativo:
+ * "$ 1.785,86 · IVA 21%" o "$ 1.785,86 · Precio directo". Si el producto
+ * todavía no tiene opción, muestra solo el precio.
  */
-export function formatearPrecioConIva(
+export function formatearPrecioConFacturacion(
   precio: number,
-  ivaPorcentaje: number
+  opcionFacturacion: number | null
 ): string {
-  return `${formatearPrecio(precio)} · IVA ${ivaPorcentaje}%`;
+  const etiqueta = etiquetaFacturacion(opcionFacturacion);
+  return etiqueta
+    ? `${formatearPrecio(precio)} · ${etiqueta}`
+    : formatearPrecio(precio);
 }
 
 const formateadorRelativo = new Intl.RelativeTimeFormat("es-AR", {

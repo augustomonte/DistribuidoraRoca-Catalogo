@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { obtenerProductoDetalle } from "@/lib/catalogo";
 import { getPerfilActual } from "@/lib/auth";
-import { formatearPrecioConIva, formatearFechaRelativa } from "@/lib/utils";
+import { formatearPrecioConFacturacion, formatearFechaRelativa } from "@/lib/utils";
 import { BotonAgregarCarrito } from "@/components/catalogo/BotonAgregarCarrito";
 
 export default async function ProductoDetallePage({
@@ -71,12 +71,10 @@ export default async function ProductoDetallePage({
           )}
 
           <div className="mt-2 border-t border-tema-tinta/10 pt-4">
-            <p className="flex items-center gap-2 text-2xl font-bold text-tema-tinta">
-              {formatearPrecioConIva(producto.precio, producto.iva_porcentaje)}
-              {producto.nota_iva === "3" && (
-                <span title="Nota 3" className="text-base font-normal text-tema-tinta/40">
-                  ③
-                </span>
+            <p className="text-2xl font-bold text-tema-tinta">
+              {formatearPrecioConFacturacion(
+                producto.precio,
+                producto.opcion_facturacion
               )}
             </p>
             {producto.unidad_venta && (

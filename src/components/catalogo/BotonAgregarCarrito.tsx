@@ -37,7 +37,6 @@ export function BotonAgregarCarrito({
       nombre: producto.nombre,
       marca: producto.marca,
       precio: producto.precio,
-      ivaPorcentaje: producto.iva_porcentaje,
       unidadVenta: producto.unidad_venta,
       fotoUrl: producto.foto_url,
     });

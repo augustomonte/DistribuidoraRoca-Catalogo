@@ -16,7 +16,6 @@ export interface ItemCarrito {
   nombre: string;
   marca: string | null;
   precio: number;
-  ivaPorcentaje: number;
   unidadVenta: string | null;
   fotoUrl: string | null;
   cantidad: number;

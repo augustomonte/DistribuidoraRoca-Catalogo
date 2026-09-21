@@ -114,6 +114,7 @@ export type Database = {
           stock_disponible: boolean;
           activo: boolean;
           precio_actualizado_en: string;
+          opcion_facturacion: number | null;
           created_at: string;
         };
         Insert: {
@@ -133,6 +134,7 @@ export type Database = {
           stock_disponible?: boolean;
           activo?: boolean;
           precio_actualizado_en?: string;
+          opcion_facturacion?: number | null;
           created_at?: string;
         };
         Update: {
@@ -152,6 +154,7 @@ export type Database = {
           stock_disponible?: boolean;
           activo?: boolean;
           precio_actualizado_en?: string;
+          opcion_facturacion?: number | null;
           created_at?: string;
         };
         Relationships: [
@@ -282,6 +285,7 @@ export type Database = {
           stock_disponible: boolean;
           activo: boolean;
           precio_actualizado_en: string;
+          opcion_facturacion: number | null;
           created_at: string;
         };
         Relationships: [];
@@ -307,6 +311,12 @@ export type Database = {
         Args: {
           items: { codigo: string; precio: number }[];
           descuento?: number;
+        };
+        Returns: string[];
+      };
+      actualizar_catalogo_masivo: {
+        Args: {
+          items: { codigo: string; precio: number; opcion: number | null }[];
         };
         Returns: string[];
       };

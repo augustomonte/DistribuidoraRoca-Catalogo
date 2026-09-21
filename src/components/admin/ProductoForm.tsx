@@ -29,19 +29,6 @@ export function ProductoForm({
 }) {
   const [state, formAction, pending] = useActionState(accion, {});
 
-  const porcentajeDescuento = Math.round(
-    cliente.precios.descuentoPrecioAcordado * 100
-  );
-
-  // Los productos importados del Excel quedaron con acordado == catálogo,
-  // que es el estado "sin precio acordado propio". En esos casos dejamos el
-  // campo vacío para que al guardar se recalcule con el descuento, en vez de
-  // arrastrar el valor duplicado.
-  const acordadoInicial =
-    producto && producto.precio_acordado !== producto.precio_lista2
-      ? producto.precio_acordado
-      : "";
-
   const inputFotoRef = useRef<HTMLInputElement>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [nombreArchivo, setNombreArchivo] = useState<string | null>(null);
@@ -134,10 +121,10 @@ export function ProductoForm({
         </Select>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="flex flex-col gap-1">
           <label htmlFor="precio" className="text-sm font-medium">
-            Precio Catálogo (con IVA incluido) *
+            Precio *
           </label>
           <Input
             id="precio"
@@ -149,43 +136,27 @@ export function ProductoForm({
             defaultValue={producto?.precio_lista2}
           />
           <span className="text-xs text-tema-tinta/40">
-            Lo que ve el cliente final
+            El que ven todos, tal cual (sin cálculos)
           </span>
         </div>
 
         <div className="flex flex-col gap-1">
-          <label htmlFor="precio_acordado" className="text-sm font-medium">
-            Precio Acordado
-          </label>
-          <Input
-            id="precio_acordado"
-            name="precio_acordado"
-            type="number"
-            step="0.01"
-            min="0"
-            placeholder={`Auto: −${porcentajeDescuento}%`}
-            defaultValue={acordadoInicial}
-          />
-          <span className="text-xs text-tema-tinta/40">
-            Solo lo ven admin y vendedores. Vacío = catálogo −
-            {porcentajeDescuento}%
-          </span>
-        </div>
-
-        <div className="flex flex-col gap-1">
-          <label htmlFor="iva_porcentaje" className="text-sm font-medium">
-            % IVA
+          <label htmlFor="opcion_facturacion" className="text-sm font-medium">
+            Opción de facturación
           </label>
           <Select
-            id="iva_porcentaje"
-            name="iva_porcentaje"
-            defaultValue={producto?.iva_porcentaje ?? cliente.precios.alicuotasIva[0]}
+            id="opcion_facturacion"
+            name="opcion_facturacion"
+            defaultValue={producto?.opcion_facturacion ?? ""}
           >
-            {cliente.precios.alicuotasIva.map((alicuota) => (
-              <option key={alicuota} value={alicuota}>
-                {alicuota}%
-              </option>
-            ))}
+            <option value="">Sin definir</option>
+            {Object.entries(cliente.facturacion.opciones).map(
+              ([numero, etiqueta]) => (
+                <option key={numero} value={numero}>
+                  {numero} — {etiqueta}
+                </option>
+              )
+            )}
           </Select>
         </div>
       </div>

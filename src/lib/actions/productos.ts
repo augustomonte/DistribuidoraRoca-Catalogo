@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getPerfilActual } from "@/lib/auth";
 import { obtenerOCrearMarcaId } from "@/lib/marcas";
-import { cliente, calcularPrecioAcordado } from "@/config/cliente";
+import { cliente } from "@/config/cliente";
 
 export interface ProductoFormState {
   error?: string;
@@ -26,43 +26,29 @@ function leerCamposProducto(formData: FormData) {
   const marca = String(formData.get("marca") ?? "").trim();
   const categoriaIdRaw = String(formData.get("categoria_id") ?? "");
   const precioRaw = String(formData.get("precio") ?? "");
-  const precioAcordadoRaw = String(formData.get("precio_acordado") ?? "").trim();
-  const ivaRaw = String(formData.get("iva_porcentaje") ?? "21");
+  const opcionRaw = String(formData.get("opcion_facturacion") ?? "").trim();
 
   if (!codigo || !nombre) {
     return { error: "El código y el nombre son obligatorios." } as const;
   }
 
   const precio = Number(precioRaw.replace(",", "."));
-  const iva = Number(ivaRaw);
 
   if (Number.isNaN(precio) || precio < 0) {
-    return { error: "El precio de catálogo no es válido." } as const;
-  }
-  if (!cliente.precios.alicuotasIva.includes(iva)) {
-    return {
-      error: `El % de IVA debe ser ${cliente.precios.alicuotasIva.join(" o ")}.`,
-    } as const;
+    return { error: "El precio no es válido." } as const;
   }
 
-  // El precio acordado (el reservado, que solo ven admin y vendedores) es
-  // opcional: si el admin no lo carga, se deriva del precio de catálogo
-  // con el descuento configurado en config/cliente.ts.
-  let precioAcordado: number;
-
-  if (precioAcordadoRaw) {
-    precioAcordado = Number(precioAcordadoRaw.replace(",", "."));
-    if (Number.isNaN(precioAcordado) || precioAcordado < 0) {
-      return { error: "El precio acordado no es válido." } as const;
-    }
-    if (precioAcordado > precio) {
+  // Vacío = sin definir (se completa con el Excel de precios).
+  let opcionFacturacion: number | null = null;
+  if (opcionRaw) {
+    opcionFacturacion = Number(opcionRaw);
+    if (!(opcionRaw in cliente.facturacion.opciones)) {
       return {
-        error:
-          "El precio acordado no puede ser mayor al de catálogo: es el precio reservado para vendedores.",
+        error: `La opción de facturación debe ser ${Object.keys(
+          cliente.facturacion.opciones
+        ).join(", ")}.`,
       } as const;
     }
-  } else {
-    precioAcordado = calcularPrecioAcordado(precio);
   }
 
   const categoriaId = categoriaIdRaw ? Number(categoriaIdRaw) : null;
@@ -74,9 +60,8 @@ function leerCamposProducto(formData: FormData) {
       nombre,
       descripcion: descripcion || null,
       categoria_id: categoriaId,
-      precio_acordado: precioAcordado,
       precio_lista2: precio,
-      iva_porcentaje: iva,
+      opcion_facturacion: opcionFacturacion,
       stock_disponible: formData.get("stock_disponible") === "on",
     },
   } as const;

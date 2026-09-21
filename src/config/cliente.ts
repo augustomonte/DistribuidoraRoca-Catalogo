@@ -15,6 +15,9 @@
  * necesita en tiempo de compilación.
  */
 
+/** Las opciones de facturación válidas (columna productos.opcion_facturacion). */
+export type OpcionFacturacion = 1 | 2 | 3;
+
 export interface Ubicacion {
   titulo: string;
   direccion: string;
@@ -74,19 +77,14 @@ export interface ConfigCliente {
     clientePlural: string;
   };
 
-  precios: {
-    /**
-     * El admin carga UN precio: el de catálogo (el que ve el cliente
-     * final, con IVA incluido). El precio acordado —el reservado, que solo
-     * ven admin y vendedores— se calcula restándole este porcentaje.
-     *
-     * 0.10 = el vendedor ve un 10% menos que el catálogo.
-     *
-     * Se puede pisar producto por producto desde el formulario del panel.
-     */
-    descuentoPrecioAcordado: number;
-    /** Alícuotas de IVA que ofrece el formulario de productos. */
-    alicuotasIva: number[];
+  /**
+   * Opciones de facturación de un producto. El Excel de precios trae el
+   * NÚMERO (1, 2 o 3) y la app muestra la etiqueta de acá; el porcentaje de
+   * IVA no se guarda aparte. Cada distribuidora define las suyas.
+   * Los precios vienen ya calculados en el Excel: la app no deriva nada.
+   */
+  facturacion: {
+    opciones: Record<OpcionFacturacion, string>;
   };
 
   features: {
@@ -152,9 +150,12 @@ export const cliente: ConfigCliente = {
     clientePlural: "Ferreterías",
   },
 
-  precios: {
-    descuentoPrecioAcordado: 0.1,
-    alicuotasIva: [21, 10.5],
+  facturacion: {
+    opciones: {
+      1: "IVA 21%",
+      2: "IVA 10,5%",
+      3: "Precio directo",
+    },
   },
 
   features: {
@@ -165,11 +166,10 @@ export const cliente: ConfigCliente = {
 };
 
 /**
- * Deriva el precio acordado (el reservado para admin y vendedores) a
- * partir del precio de catálogo, aplicando el descuento configurado.
- * Redondea a dos decimales.
+ * Etiqueta de la opción de facturación de un producto ("IVA 21%",
+ * "Precio directo"...), o null si todavía no tiene ninguna.
  */
-export function calcularPrecioAcordado(precioCatalogo: number): number {
-  const descuento = cliente.precios.descuentoPrecioAcordado;
-  return Math.round(precioCatalogo * (1 - descuento) * 100) / 100;
+export function etiquetaFacturacion(opcion: number | null): string | null {
+  if (opcion === null) return null;
+  return cliente.facturacion.opciones[opcion as OpcionFacturacion] ?? null;
 }
