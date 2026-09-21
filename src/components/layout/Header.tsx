@@ -1,6 +1,7 @@
 import { Logo } from "@/components/layout/Logo";
 import { LogoutButton } from "@/components/layout/LogoutButton";
 import { NavList } from "@/components/layout/NavList";
+import { CarritoBadge } from "@/components/layout/CarritoBadge";
 import { cliente } from "@/config/cliente";
 import type { Perfil } from "@/types";
 
@@ -39,6 +40,7 @@ export function Header({ perfil }: { perfil: Perfil }) {
         <NavList items={nav} />
 
         <div className="flex items-center gap-3">
+          {perfil.rol === "cliente" && <CarritoBadge />}
           <span className="hidden text-sm text-tema-tinta/60 sm:inline">
             {perfil.nombre} {perfil.apellido ?? ""} ·{" "}
             <span className="font-semibold uppercase">

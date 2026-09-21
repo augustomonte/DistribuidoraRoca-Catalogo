@@ -2,7 +2,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { obtenerProductoDetalle } from "@/lib/catalogo";
+import { getPerfilActual } from "@/lib/auth";
 import { formatearPrecioConIva } from "@/lib/utils";
+import { BotonAgregarCarrito } from "@/components/catalogo/BotonAgregarCarrito";
 
 export default async function ProductoDetallePage({
   params,
@@ -10,7 +12,10 @@ export default async function ProductoDetallePage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const producto = await obtenerProductoDetalle(id);
+  const [producto, perfil] = await Promise.all([
+    obtenerProductoDetalle(id),
+    getPerfilActual(),
+  ]);
 
   if (!producto) notFound();
 
@@ -85,6 +90,12 @@ export default async function ProductoDetallePage({
             <p className="mt-2 whitespace-pre-line text-sm text-tema-tinta/70">
               {producto.descripcion}
             </p>
+          )}
+
+          {perfil?.rol === "cliente" && (
+            <div className="mt-2 max-w-xs">
+              <BotonAgregarCarrito producto={producto} />
+            </div>
           )}
         </div>
       </div>

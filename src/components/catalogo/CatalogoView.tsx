@@ -4,6 +4,7 @@ import {
   PRODUCTOS_POR_PAGINA,
   type OrdenCatalogo,
 } from "@/lib/catalogo";
+import { getPerfilActual } from "@/lib/auth";
 import { ProductoCard } from "@/components/catalogo/ProductoCard";
 import { Filtros } from "@/components/catalogo/Filtros";
 import { Paginacion } from "@/components/catalogo/Paginacion";
@@ -29,7 +30,7 @@ export async function CatalogoView({
   const orden: OrdenCatalogo =
     searchParams.orden === "nombre_desc" ? "nombre_desc" : "nombre_asc";
 
-  const [{ productos, total }, marcas] = await Promise.all([
+  const [{ productos, total }, marcas, perfil] = await Promise.all([
     obtenerProductos({
       pagina,
       categoriaId,
@@ -38,8 +39,10 @@ export async function CatalogoView({
       orden,
     }),
     obtenerMarcas(),
+    getPerfilActual(),
   ]);
 
+  const puedeComprar = perfil?.rol === "cliente";
   const totalPaginas = Math.ceil(total / PRODUCTOS_POR_PAGINA);
 
   return (
@@ -58,7 +61,12 @@ export async function CatalogoView({
       ) : (
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
           {productos.map((producto, i) => (
-            <ProductoCard key={producto.id} producto={producto} index={i} />
+            <ProductoCard
+              key={producto.id}
+              producto={producto}
+              index={i}
+              puedeComprar={puedeComprar}
+            />
           ))}
         </div>
       )}
