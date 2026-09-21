@@ -299,6 +299,13 @@ export type Database = {
         };
         Returns: Database["public"]["Views"]["productos_vista"]["Row"][];
       };
+      actualizar_precios_masivo: {
+        Args: {
+          items: { codigo: string; precio: number }[];
+          descuento?: number;
+        };
+        Returns: string[];
+      };
     };
     Enums: {
       rol_usuario: RolUsuario;

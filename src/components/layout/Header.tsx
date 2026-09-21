@@ -12,6 +12,7 @@ const NAV_POR_ROL: Record<Perfil["rol"], { href: string; label: string }[]> = {
     { href: "/admin/usuarios", label: "Usuarios" },
     { href: "/admin/marcas", label: "Marcas" },
     { href: "/admin/categorias", label: "Categorías" },
+    { href: "/admin/precios", label: "Precios" },
     { href: "/catalogo", label: "Ver catálogo" },
     { href: "/pedidos", label: "Pedidos" },
     { href: "/perfil", label: "Mi perfil" },
