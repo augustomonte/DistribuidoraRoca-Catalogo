@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getPerfilActual } from "@/lib/auth";
+import type { EstadoPedido } from "@/types/database.types";
 
 export interface CrearPedidoResultado {
   ok: boolean;
@@ -96,4 +97,31 @@ export async function crearPedido(
 
   revalidatePath("/pedidos");
   return { ok: true, pedidoId: pedido.id };
+}
+
+/**
+ * Cambia el estado de un pedido. Solo admin y vendedor (el vendedor,
+ * solo de los pedidos de sus propios clientes: la policy RLS
+ * "pedidos_update_vendedor" lo hace cumplir igual del lado de la base,
+ * esto es nada más para no dejar pasar el intento a un cliente).
+ */
+export async function actualizarEstadoPedido(
+  pedidoId: string,
+  estado: EstadoPedido
+): Promise<{ ok: boolean; error?: string }> {
+  const perfil = await getPerfilActual();
+  if (!perfil || (perfil.rol !== "admin" && perfil.rol !== "vendedor")) {
+    return { ok: false, error: "No autorizado" };
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("pedidos")
+    .update({ estado })
+    .eq("id", pedidoId);
+
+  if (error) return { ok: false, error: error.message };
+
+  revalidatePath("/pedidos");
+  return { ok: true };
 }
