@@ -45,6 +45,13 @@ create trigger trg_marcar_precio_actualizado
 -- ---------------------------------------------------------------------
 -- 3. Recrear productos_vista con la columna nueva
 -- ---------------------------------------------------------------------
+--    buscar_productos_ranked devuelve "setof productos_vista", o sea que
+--    depende del tipo de la vista y Postgres no deja borrarla mientras la
+--    función exista. Se da de baja acá y se recrea en el paso 4 (idéntica
+--    a la de 0006). Sin CASCADE a propósito: si algo más dependiera de la
+--    vista, preferimos que falle a que se lleve puesto algo sin avisar.
+drop function if exists public.buscar_productos_ranked(text, int, text, text, int, int);
+
 drop view if exists public.productos_vista;
 
 create view public.productos_vista
@@ -77,6 +84,48 @@ left join public.marcas m on m.id = p.marca_id
 where p.activo = true;
 
 grant select on public.productos_vista to authenticated;
+
+-- ---------------------------------------------------------------------
+-- 4. Recrear buscar_productos_ranked (copia de 0006, sin cambios)
+-- ---------------------------------------------------------------------
+create or replace function public.buscar_productos_ranked(
+  termino text,
+  filtro_categoria_id int default null,
+  filtro_marca text default null,
+  orden_alfabetico text default 'asc',
+  limite int default 50,
+  desplazamiento int default 0
+)
+returns setof productos_vista
+language sql
+stable
+security invoker
+as $$
+  select pv.*
+  from public.productos_vista pv
+  where
+    (filtro_categoria_id is null or pv.categoria_id = filtro_categoria_id)
+    and (filtro_marca is null or pv.marca = filtro_marca)
+    and not exists (
+      select 1
+      from unnest(string_to_array(trim(termino), ' ')) as palabra
+      where palabra <> ''
+        and pv.nombre not ilike '%' || palabra || '%'
+        and pv.codigo not ilike '%' || palabra || '%'
+    )
+  order by
+    case
+      when pv.codigo ilike termino || '%' then 0
+      when pv.nombre ilike termino || '%' then 1
+      when (' ' || pv.nombre || ' ') ilike ('% ' || termino || ' %') then 2
+      else 3
+    end,
+    case when orden_alfabetico = 'desc' then pv.nombre end desc,
+    case when orden_alfabetico <> 'desc' then pv.nombre end asc
+  limit limite offset desplazamiento;
+$$;
+
+grant execute on function public.buscar_productos_ranked to authenticated;
 
 -- =====================================================================
 -- FIN.
