@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { formatearPrecioConIva } from "@/lib/utils";
+import { formatearPrecioConIva, formatearFechaRelativa } from "@/lib/utils";
 import { BotonAgregarCarrito } from "@/components/catalogo/BotonAgregarCarrito";
 import type { ProductoVista } from "@/types";
 
@@ -75,6 +75,9 @@ export function ProductoCard({
                 por {producto.unidad_venta.toLowerCase()}
               </p>
             )}
+            <p className="text-[11px] text-tema-tinta/35">
+              Precio actualizado {formatearFechaRelativa(producto.precio_actualizado_en)}
+            </p>
           </div>
         </div>
       </Link>

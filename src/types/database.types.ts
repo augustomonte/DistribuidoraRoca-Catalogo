@@ -113,6 +113,7 @@ export type Database = {
           foto_url: string | null;
           stock_disponible: boolean;
           activo: boolean;
+          precio_actualizado_en: string;
           created_at: string;
         };
         Insert: {
@@ -131,6 +132,7 @@ export type Database = {
           foto_url?: string | null;
           stock_disponible?: boolean;
           activo?: boolean;
+          precio_actualizado_en?: string;
           created_at?: string;
         };
         Update: {
@@ -149,6 +151,7 @@ export type Database = {
           foto_url?: string | null;
           stock_disponible?: boolean;
           activo?: boolean;
+          precio_actualizado_en?: string;
           created_at?: string;
         };
         Relationships: [
@@ -278,6 +281,7 @@ export type Database = {
           foto_url: string | null;
           stock_disponible: boolean;
           activo: boolean;
+          precio_actualizado_en: string;
           created_at: string;
         };
         Relationships: [];

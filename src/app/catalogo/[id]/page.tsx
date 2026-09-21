@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { obtenerProductoDetalle } from "@/lib/catalogo";
 import { getPerfilActual } from "@/lib/auth";
-import { formatearPrecioConIva } from "@/lib/utils";
+import { formatearPrecioConIva, formatearFechaRelativa } from "@/lib/utils";
 import { BotonAgregarCarrito } from "@/components/catalogo/BotonAgregarCarrito";
 
 export default async function ProductoDetallePage({
@@ -84,6 +84,14 @@ export default async function ProductoDetallePage({
                 por {producto.unidad_venta.toLowerCase()}
               </p>
             )}
+            <p
+              className="mt-1 text-xs text-tema-tinta/40"
+              title={new Date(producto.precio_actualizado_en).toLocaleString(
+                "es-AR"
+              )}
+            >
+              Precio actualizado {formatearFechaRelativa(producto.precio_actualizado_en)}
+            </p>
           </div>
 
           {producto.descripcion && (

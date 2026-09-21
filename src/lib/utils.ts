@@ -25,3 +25,30 @@ export function formatearPrecioConIva(
 ): string {
   return `${formatearPrecio(precio)} · IVA ${ivaPorcentaje}%`;
 }
+
+const formateadorRelativo = new Intl.RelativeTimeFormat("es-AR", {
+  numeric: "auto",
+});
+
+/**
+ * "hoy", "ayer", "hace 3 días", "hace 2 meses"... Se usa para mostrar
+ * hace cuánto se actualizó el precio de un producto (ver
+ * productos.precio_actualizado_en), para que se note cuando uno quedó
+ * atrás en vez de recibir una actualización.
+ */
+export function formatearFechaRelativa(fechaIso: string): string {
+  const fecha = new Date(fechaIso);
+  const diffMs = fecha.getTime() - Date.now();
+  const diffDias = Math.round(diffMs / (1000 * 60 * 60 * 24));
+
+  if (Math.abs(diffDias) < 1) return "hoy";
+  if (Math.abs(diffDias) < 30) return formateadorRelativo.format(diffDias, "day");
+
+  const diffMeses = Math.round(diffDias / 30);
+  if (Math.abs(diffMeses) < 12) {
+    return formateadorRelativo.format(diffMeses, "month");
+  }
+
+  const diffAnios = Math.round(diffMeses / 12);
+  return formateadorRelativo.format(diffAnios, "year");
+}

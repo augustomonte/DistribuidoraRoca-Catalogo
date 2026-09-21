@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { formatearPrecioConIva } from "@/lib/utils";
+import { formatearPrecioConIva, formatearFechaRelativa } from "@/lib/utils";
 import { alternarActivoProducto } from "@/lib/actions/productos";
 import { EliminarProductoBoton } from "@/components/admin/EliminarProductoBoton";
 import type { ProductoConMarca } from "@/lib/admin";
@@ -27,6 +27,7 @@ export function ProductosTable({
             <th className="px-4 py-3">Marca</th>
             <th className="px-4 py-3">Foto</th>
             <th className="px-4 py-3">Precio Catálogo</th>
+            <th className="px-4 py-3">Actualizado</th>
             <th className="px-4 py-3">Stock</th>
             <th className="px-4 py-3">Estado</th>
             <th className="px-4 py-3 text-right">Acciones</th>
@@ -53,6 +54,14 @@ export function ProductosTable({
                   producto.precio_lista2,
                   producto.iva_porcentaje
                 )}
+              </td>
+              <td
+                className="px-4 py-3 text-tema-tinta/60"
+                title={new Date(producto.precio_actualizado_en).toLocaleString(
+                  "es-AR"
+                )}
+              >
+                {formatearFechaRelativa(producto.precio_actualizado_en)}
               </td>
               <td className="px-4 py-3">
                 {producto.stock_disponible ? "Sí" : "Sin stock"}
