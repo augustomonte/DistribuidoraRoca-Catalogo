@@ -19,11 +19,11 @@ export default function EmpresaPage() {
       </header>
 
       <main className="flex-1">
-        <section className="bg-tema-tinta px-6 py-20 text-center">
-          <h1 className="text-3xl font-extrabold tracking-tight text-tema-papel sm:text-5xl">
+        <section className="bg-tema-superficie-oscura px-6 py-20 text-center">
+          <h1 className="text-3xl font-extrabold tracking-tight text-tema-texto-claro sm:text-5xl">
             {cliente.textos.empresaTitulo}
           </h1>
-          <p className="mx-auto mt-4 max-w-2xl text-tema-papel/70">
+          <p className="mx-auto mt-4 max-w-2xl text-tema-texto-claro/70">
             {cliente.textos.empresaTexto}
           </p>
         </section>

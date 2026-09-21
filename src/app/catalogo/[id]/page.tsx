@@ -46,7 +46,7 @@ export default async function ProductoDetallePage({
           )}
 
           {!producto.stock_disponible && (
-            <span className="absolute left-3 top-3 rounded bg-tema-tinta/80 px-2 py-1 text-xs font-semibold text-tema-papel">
+            <span className="absolute left-3 top-3 rounded bg-tema-superficie-oscura/80 px-2 py-1 text-xs font-semibold text-tema-texto-claro">
               Sin stock
             </span>
           )}

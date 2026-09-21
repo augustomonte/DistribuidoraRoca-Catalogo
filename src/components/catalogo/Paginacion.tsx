@@ -41,7 +41,7 @@ export function Paginacion({
               className={cn(
                 "flex h-9 min-w-9 items-center justify-center rounded-md px-2 text-sm font-medium",
                 pagina === paginaActual
-                  ? "bg-tema-primario text-tema-papel"
+                  ? "bg-tema-primario text-tema-texto-claro"
                   : "text-tema-tinta/70 hover:bg-tema-tinta/5"
               )}
             >

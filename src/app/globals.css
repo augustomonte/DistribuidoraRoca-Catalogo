@@ -1,16 +1,14 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #1a1a1a;
-
   /* ===================================================================
      PALETA DEL CLIENTE
 
      Estos seis valores son TODO lo que hay que cambiar para revestir el
      catálogo con la identidad de otra empresa. El resto del código usa
      únicamente los nombres semánticos (tema-primario, tema-tinta, etc.),
-     nunca un color literal.
+     nunca un color literal. Cada uno tiene además una variante oscura,
+     más abajo — no hay que tocarlas para cambiar de cliente, solo estas.
 
      El resto de la configuración del cliente —nombre, logos, contacto,
      textos, sucursales— vive en `src/config/cliente.ts`. Los colores
@@ -26,17 +24,52 @@
   --color-tema-primario-oscuro: #7a0b16;
   /* Realce: títulos y destaques sobre fondo oscuro. */
   --color-tema-secundario: #ffd700;
-  /* Tinta: texto principal y superficies oscuras (hero, header, footer). */
+  /* Tinta: texto principal. Invierte con el tema (clara en oscuro). */
   --color-tema-tinta: #1a1a1a;
-  /* Papel: superficies claras (tarjetas, paneles, barras). */
+  /* Papel: superficie de tarjetas/paneles. Invierte con el tema. */
   --color-tema-papel: #ffffff;
-  /* Fondo general de la página. */
+  /* Fondo general de la página. Invierte con el tema. */
   --color-tema-fondo: #f5f5f5;
+
+  /* -------------------------------------------------------------------
+     Fijos: NO invierten con el tema. Sirven para lo que tiene que verse
+     igual en claro y en oscuro — texto claro sobre un botón de color
+     (tema-primario, WhatsApp), texto oscuro sobre un acento claro
+     (tema-secundario, dorado), y las franjas oscuras deliberadas del
+     hero/footer. Antes esos casos abusaban de tema-tinta/tema-papel, lo
+     que rompía en cuanto esos dos empezaron a invertir con el tema.
+     ------------------------------------------------------------------- */
+  --color-tema-superficie-oscura: #1a1a1a;
+  --color-tema-texto-claro: #ffffff;
+  --color-tema-texto-oscuro: #1a1a1a;
+}
+
+@media (prefers-color-scheme: dark) {
+  /* :not([data-theme="light"]) para que una preferencia EXPLÍCITA de
+     modo claro (guardada por el usuario) le gane al sistema oscuro. */
+  :root:not([data-theme="light"]) {
+    --color-tema-primario: #d32f3f;
+    --color-tema-primario-oscuro: #ef5361;
+    --color-tema-secundario: #e6c200;
+    --color-tema-tinta: #f2f0ec;
+    --color-tema-papel: #201d1b;
+    --color-tema-fondo: #171513;
+  }
+}
+
+/* Repetido para que una preferencia EXPLÍCITA de modo oscuro también le
+   gane a un sistema en claro (el media query de arriba no alcanza para
+   este caso). */
+:root[data-theme="dark"] {
+  --color-tema-primario: #d32f3f;
+  --color-tema-primario-oscuro: #ef5361;
+  --color-tema-secundario: #e6c200;
+  --color-tema-tinta: #f2f0ec;
+  --color-tema-papel: #201d1b;
+  --color-tema-fondo: #171513;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 
@@ -46,11 +79,12 @@
   --color-tema-tinta: var(--color-tema-tinta);
   --color-tema-papel: var(--color-tema-papel);
   --color-tema-fondo: var(--color-tema-fondo);
+  --color-tema-superficie-oscura: var(--color-tema-superficie-oscura);
+  --color-tema-texto-claro: var(--color-tema-texto-claro);
+  --color-tema-texto-oscuro: var(--color-tema-texto-oscuro);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
   font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
 }
 

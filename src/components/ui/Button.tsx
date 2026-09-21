@@ -9,13 +9,13 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const variantes: Record<Variante, string> = {
   primario:
-    "bg-tema-primario text-tema-papel hover:bg-tema-primario-oscuro focus-visible:outline-tema-primario",
+    "bg-tema-primario text-tema-texto-claro hover:bg-tema-primario-oscuro focus-visible:outline-tema-primario",
   secundario:
-    "bg-tema-secundario text-tema-tinta hover:brightness-95 focus-visible:outline-tema-secundario",
+    "bg-tema-secundario text-tema-texto-oscuro hover:brightness-95 focus-visible:outline-tema-secundario",
   outline:
     "border border-tema-tinta/20 bg-transparent text-tema-tinta hover:bg-tema-tinta/5 focus-visible:outline-tema-tinta",
   peligro:
-    "bg-red-700 text-tema-papel hover:bg-red-800 focus-visible:outline-red-700",
+    "bg-red-700 text-tema-texto-claro hover:bg-red-800 focus-visible:outline-red-700",
 };
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(

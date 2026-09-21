@@ -8,6 +8,7 @@ import { cliente } from "@/config/cliente";
 import { obtenerNavPorRol, type GrupoNav } from "@/components/layout/navPorRol";
 import { Icono } from "@/components/layout/iconos";
 import { LogoutButton } from "@/components/layout/LogoutButton";
+import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { useCarrito } from "@/lib/carrito";
 import type { Perfil } from "@/types";
 
@@ -75,7 +76,7 @@ export function Sidebar({
       </nav>
 
       <div className="flex items-center gap-2.5 border-t border-tema-tinta/10 p-2.5">
-        <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-tema-secundario text-xs font-bold text-tema-tinta">
+        <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-tema-secundario text-xs font-bold text-tema-texto-oscuro">
           {inicial}
         </span>
         <div className="min-w-0 flex-1 leading-tight">
@@ -86,6 +87,7 @@ export function Sidebar({
             {etiquetaRol}
           </p>
         </div>
+        <ThemeToggle />
         <LogoutButton compacto />
       </div>
     </div>
@@ -138,7 +140,7 @@ function GrupoDeNav({
             <Icono nombre={item.icono} className="h-4 w-4 flex-shrink-0" />
             <span className="flex-1 truncate">{item.label}</span>
             {!!badge && (
-              <span className="rounded-full bg-tema-primario px-1.5 py-0.5 text-[10px] font-bold leading-none text-tema-papel">
+              <span className="rounded-full bg-tema-primario px-1.5 py-0.5 text-[10px] font-bold leading-none text-tema-texto-claro">
                 {badge}
               </span>
             )}

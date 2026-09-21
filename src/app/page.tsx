@@ -20,7 +20,7 @@ export default function Home() {
         </nav>
       </header>
 
-      <main className="flex flex-1 flex-col items-center justify-center gap-4 bg-tema-tinta px-6 py-24 text-center">
+      <main className="flex flex-1 flex-col items-center justify-center gap-4 bg-tema-superficie-oscura px-6 py-24 text-center">
         <Image
           src={cliente.marca.logo.isotipo}
           alt={cliente.marca.nombreCorto}
@@ -32,7 +32,7 @@ export default function Home() {
         <h1 className="text-2xl font-extrabold tracking-tight text-tema-secundario sm:text-4xl">
           {cliente.textos.homeTitulo}
         </h1>
-        <p className="max-w-lg text-tema-papel/70">
+        <p className="max-w-lg text-tema-texto-claro/70">
           {cliente.textos.homeSubtitulo}
         </p>
         <Link href="/login">
