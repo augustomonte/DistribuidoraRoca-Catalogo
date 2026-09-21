@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { getPerfilActual } from "@/lib/auth";
+import { getPerfilVerificado } from "@/lib/auth";
 import { PROVINCIAS_ARGENTINA } from "@/lib/provincias";
 import { cliente } from "@/config/cliente";
 
@@ -12,8 +12,11 @@ export interface UsuarioFormState {
   ok?: boolean;
 }
 
+// Estas acciones usan createAdminClient (clave de servicio, se salta la
+// RLS), así que verifican contra la base en vez de confiar en el header
+// "x-perfil". Ver getPerfilVerificado() en src/lib/auth.ts.
 async function requireAdmin() {
-  const perfil = await getPerfilActual();
+  const perfil = await getPerfilVerificado();
   if (!perfil || perfil.rol !== "admin") {
     throw new Error("No autorizado");
   }
@@ -21,7 +24,7 @@ async function requireAdmin() {
 }
 
 async function requireAdminOVendedor() {
-  const perfil = await getPerfilActual();
+  const perfil = await getPerfilVerificado();
   if (!perfil || (perfil.rol !== "admin" && perfil.rol !== "vendedor")) {
     throw new Error("No autorizado");
   }

@@ -27,8 +27,34 @@ export async function getPerfilActual(): Promise<Perfil | null> {
     }
   }
 
+  return consultarPerfilEnBase();
+}
+
+/**
+ * Igual que getPerfilActual(), pero NUNCA lee el header "x-perfil": siempre
+ * valida la sesión y busca el perfil en la base.
+ *
+ * Usarla en las Server Actions que autorizan algo con la clave de servicio
+ * (createAdminClient), que se salta la RLS: ahí la base no puede frenar un
+ * perfil inventado, así que lo único que protege es esta verificación.
+ * Cuesta una consulta extra por llamada, aceptable en acciones puntuales
+ * (crear/eliminar usuarios); no usarla para renderizar páginas.
+ *
+ * Defensa en profundidad: el proxy ya descarta el "x-perfil" que llega de
+ * afuera, pero acá no dependemos de eso.
+ */
+export async function getPerfilVerificado(): Promise<Perfil | null> {
+  // TEMPORAL — modo desarrollo sin login (ver src/lib/dev-sin-login.ts).
+  if (devSinLogin) return perfilDev();
+
+  return consultarPerfilEnBase();
+}
+
+async function consultarPerfilEnBase(): Promise<Perfil | null> {
   const supabase = await createClient();
 
+  // getUser() valida el token contra Supabase; no confía en lo que diga la
+  // cookie por sí sola.
   const {
     data: { user },
   } = await supabase.auth.getUser();
