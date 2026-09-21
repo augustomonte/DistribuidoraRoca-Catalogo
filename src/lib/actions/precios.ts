@@ -22,6 +22,11 @@ interface ItemPrecio {
 
 const MAX_PREVIEW_FILAS = 100;
 const MAX_NO_ENCONTRADOS_MOSTRADOS = 50;
+const LOTE_BUSQUEDA = 300;
+const LOTES_EN_PARALELO = 4;
+// Supabase corta las consultas de usuarios logueados a los ~8 s; actualizar
+// los 12.000 productos de una vez con el trigger de fecha puede acercarse.
+const LOTE_ACTUALIZACION = 1500;
 
 /**
  * "1234.56" -> 1234.56, pero también "1234,56" y "1.234,56" (formato
@@ -154,17 +159,35 @@ export async function previsualizarPreciosMasivo(
   }
 
   const supabase = await createClient();
-  const { data: productos, error } = await supabase
-    .from("productos")
-    .select("codigo, nombre, precio_lista2")
-    .in(
-      "codigo",
-      items.map((i) => i.codigo)
+
+  // .in() viaja en la URL: con los ~12.000 códigos de un catálogo completo
+  // pasa de 130.000 caracteres y Supabase responde 414 (Request-URI Too
+  // Large). Por eso se consulta por lotes. Probado contra la base real:
+  // 300 por lote entra bien y trae las 1000 filas máximas por consulta.
+  const codigos = items.map((i) => i.codigo);
+  const lotes: string[][] = [];
+  for (let i = 0; i < codigos.length; i += LOTE_BUSQUEDA) {
+    lotes.push(codigos.slice(i, i + LOTE_BUSQUEDA));
+  }
+
+  const productos: { codigo: string; nombre: string; precio_lista2: number }[] =
+    [];
+  for (let i = 0; i < lotes.length; i += LOTES_EN_PARALELO) {
+    const resultados = await Promise.all(
+      lotes.slice(i, i + LOTES_EN_PARALELO).map((lote) =>
+        supabase
+          .from("productos")
+          .select("codigo, nombre, precio_lista2")
+          .in("codigo", lote)
+      )
     );
+    for (const { data, error } of resultados) {
+      if (error) return { error: error.message };
+      productos.push(...(data ?? []));
+    }
+  }
 
-  if (error) return { error: error.message };
-
-  const mapaProductos = new Map((productos ?? []).map((p) => [p.codigo, p]));
+  const mapaProductos = new Map(productos.map((p) => [p.codigo, p]));
 
   const itemsMatcheados: ItemPrecio[] = [];
   const preview: FilaPreview[] = [];
@@ -226,17 +249,34 @@ export async function confirmarPreciosMasivo(
   }
 
   const supabase = await createClient();
-  const { data: codigosActualizados, error } = await supabase.rpc(
-    "actualizar_precios_masivo",
-    {
-      items,
-      descuento: cliente.precios.descuentoPrecioAcordado,
-    }
-  );
 
-  if (error) return { error: error.message };
+  // Por lotes y en orden. Cada lote es atómico, pero el conjunto no: si uno
+  // falla a mitad de camino, los anteriores ya quedaron aplicados. Repetir
+  // el mismo archivo es seguro (pisa con los mismos valores), y solo cambia
+  // la fecha de los productos cuyo precio de verdad difiere.
+  let actualizados = 0;
+  for (let i = 0; i < items.length; i += LOTE_ACTUALIZACION) {
+    const { data: codigos, error } = await supabase.rpc(
+      "actualizar_precios_masivo",
+      {
+        items: items.slice(i, i + LOTE_ACTUALIZACION),
+        descuento: cliente.precios.descuentoPrecioAcordado,
+      }
+    );
+
+    if (error) {
+      revalidatePath("/admin");
+      return {
+        error:
+          actualizados > 0
+            ? `Se actualizaron ${actualizados} productos y después falló: ${error.message}. Volvé a subir el mismo archivo para completar el resto; es seguro repetirlo.`
+            : error.message,
+      };
+    }
+    actualizados += (codigos ?? []).length;
+  }
 
   revalidatePath("/admin");
 
-  return { ok: true, actualizados: (codigosActualizados ?? []).length };
+  return { ok: true, actualizados };
 }
