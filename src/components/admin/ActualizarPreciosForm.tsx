@@ -1,19 +1,165 @@
 "use client";
 
-import { useActionState, useRef } from "react";
+import { useActionState, useState, useTransition } from "react";
 import { Button } from "@/components/ui/Button";
-import { actualizarPreciosMasivo } from "@/lib/actions/precios";
+import { formatearPrecio } from "@/lib/utils";
+import {
+  previsualizarPreciosMasivo,
+  confirmarPreciosMasivo,
+  type ConfirmarPreciosState,
+} from "@/lib/actions/precios";
 
 export function ActualizarPreciosForm() {
-  const [state, formAction, pending] = useActionState(
-    actualizarPreciosMasivo,
+  const [preview, formAction, pendingPreview] = useActionState(
+    previsualizarPreciosMasivo,
     {}
   );
-  const formRef = useRef<HTMLFormElement>(null);
+  const [confirmando, startConfirmar] = useTransition();
+  const [resultado, setResultado] = useState<ConfirmarPreciosState | null>(
+    null
+  );
+
+  function handleConfirmar() {
+    if (!preview.items) return;
+    startConfirmar(async () => {
+      setResultado(await confirmarPreciosMasivo(preview.items!));
+    });
+  }
+
+  // Volver a "Subí un archivo" desde cero es más simple y más confiable
+  // que tratar de resetear a mano el estado de useActionState.
+  function handleVolver() {
+    window.location.reload();
+  }
+
+  if (resultado) {
+    return (
+      <div className="flex flex-col gap-4 rounded-lg border border-tema-tinta/10 bg-tema-papel p-5">
+        {resultado.ok ? (
+          <p className="rounded-md bg-green-50 px-3 py-3 text-sm text-green-700">
+            {resultado.actualizados} producto
+            {resultado.actualizados === 1 ? "" : "s"} actualizado
+            {resultado.actualizados === 1 ? "" : "s"}.
+          </p>
+        ) : (
+          <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">
+            {resultado.error}
+          </p>
+        )}
+        <Button variante="outline" onClick={handleVolver} className="w-fit">
+          Actualizar otro archivo
+        </Button>
+      </div>
+    );
+  }
+
+  if (preview.ok) {
+    const faltanEnPreview =
+      (preview.totalMatcheados ?? 0) - (preview.preview?.length ?? 0);
+
+    return (
+      <div className="flex flex-col gap-4 rounded-lg border border-tema-tinta/10 bg-tema-papel p-5">
+        <div>
+          <h2 className="text-base font-semibold text-tema-tinta">
+            Revisá los cambios antes de confirmar
+          </h2>
+          <p className="mt-1 text-sm text-tema-tinta/60">
+            {preview.totalMatcheados} producto
+            {preview.totalMatcheados === 1 ? "" : "s"}{" "}
+            {preview.totalMatcheados === 1 ? "se va" : "se van"} a actualizar.
+            Nada se guardó todavía.
+          </p>
+        </div>
+
+        {!!preview.filasInvalidas && (
+          <p className="rounded-md bg-amber-50 px-3 py-2 text-sm text-amber-700">
+            {preview.filasInvalidas} fila
+            {preview.filasInvalidas === 1 ? "" : "s"} del archivo no se{" "}
+            {preview.filasInvalidas === 1 ? "pudo" : "pudieron"} leer (código
+            o precio inválido) y no se van a tocar.
+          </p>
+        )}
+
+        {!!preview.totalNoEncontrados && (
+          <div className="rounded-md bg-amber-50 px-3 py-2 text-sm text-amber-700">
+            <p>
+              {preview.totalNoEncontrados} código
+              {preview.totalNoEncontrados === 1 ? "" : "s"} del archivo no{" "}
+              {preview.totalNoEncontrados === 1 ? "coincide" : "coinciden"}{" "}
+              con ningún producto:
+            </p>
+            <p className="mt-1 font-mono text-xs">
+              {preview.noEncontrados?.join(", ")}
+              {preview.totalNoEncontrados >
+                (preview.noEncontrados?.length ?? 0) &&
+                ` … y ${
+                  preview.totalNoEncontrados -
+                  (preview.noEncontrados?.length ?? 0)
+                } más`}
+            </p>
+          </div>
+        )}
+
+        <div className="max-h-96 overflow-y-auto rounded-md border border-tema-tinta/10">
+          <table className="w-full text-left text-sm">
+            <thead className="sticky top-0 border-b border-tema-tinta/10 bg-tema-fondo text-xs uppercase text-tema-tinta/60">
+              <tr>
+                <th className="px-3 py-2">Código</th>
+                <th className="px-3 py-2">Nombre</th>
+                <th className="px-3 py-2 text-right">Precio actual</th>
+                <th className="px-3 py-2 text-right">Precio nuevo</th>
+              </tr>
+            </thead>
+            <tbody>
+              {preview.preview?.map((fila) => (
+                <tr
+                  key={fila.codigo}
+                  className="border-b border-tema-tinta/5 last:border-0"
+                >
+                  <td className="px-3 py-2 font-mono text-xs text-tema-tinta/60">
+                    {fila.codigo}
+                  </td>
+                  <td className="px-3 py-2 text-tema-tinta">{fila.nombre}</td>
+                  <td className="px-3 py-2 text-right text-tema-tinta/50">
+                    {formatearPrecio(fila.precioActual)}
+                  </td>
+                  <td className="px-3 py-2 text-right font-medium text-tema-tinta">
+                    {formatearPrecio(fila.precioNuevo)}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        {faltanEnPreview > 0 && (
+          <p className="text-xs text-tema-tinta/50">
+            Mostrando los primeros {preview.preview?.length} de{" "}
+            {preview.totalMatcheados}.
+          </p>
+        )}
+
+        <div className="flex flex-wrap gap-2">
+          <Button onClick={handleConfirmar} disabled={confirmando}>
+            {confirmando
+              ? "Actualizando..."
+              : `Confirmar y actualizar ${preview.totalMatcheados} producto${
+                  preview.totalMatcheados === 1 ? "" : "s"
+                }`}
+          </Button>
+          <Button
+            variante="outline"
+            onClick={handleVolver}
+            disabled={confirmando}
+          >
+            Cancelar
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <form
-      ref={formRef}
       action={formAction}
       className="flex flex-col gap-4 rounded-lg border border-tema-tinta/10 bg-tema-papel p-5"
     >
@@ -24,11 +170,17 @@ export function ActualizarPreciosForm() {
         <p className="mt-1 text-sm text-tema-tinta/60">
           Subí un archivo .xlsx o .csv con columnas <code>codigo</code> y{" "}
           <code>precio</code> (el precio de catálogo, ya con IVA incluido).
-          Se actualiza el precio de cada producto cuyo código coincida; el
-          precio acordado se recalcula solo con el descuento configurado,
-          así que si le pisaste un acordado a mano a algún producto, se
-          pierde ese ajuste.
+          El precio acordado se recalcula con el descuento configurado, así
+          que si le pisaste un acordado a mano a algún producto, se pierde
+          ese ajuste.
         </p>
+        <a
+          href="/plantilla-precios.xlsx"
+          download
+          className="mt-2 inline-block text-sm font-medium text-tema-primario hover:underline"
+        >
+          Descargar plantilla de ejemplo
+        </a>
       </div>
 
       <div className="flex flex-col gap-1">
@@ -45,42 +197,14 @@ export function ActualizarPreciosForm() {
         />
       </div>
 
-      {state.error && (
+      {preview.error && (
         <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">
-          {state.error}
+          {preview.error}
         </p>
       )}
 
-      {state.ok && (
-        <div className="rounded-md bg-green-50 px-3 py-3 text-sm text-green-700">
-          <p>
-            {state.actualizados} producto
-            {state.actualizados === 1 ? "" : "s"} actualizado
-            {state.actualizados === 1 ? "" : "s"}.
-          </p>
-          {!!state.totalNoEncontrados && (
-            <div className="mt-2 text-amber-700">
-              <p>
-                {state.totalNoEncontrados} código
-                {state.totalNoEncontrados === 1 ? "" : "s"} del archivo no{" "}
-                {state.totalNoEncontrados === 1 ? "coincide" : "coinciden"}{" "}
-                con ningún producto:
-              </p>
-              <p className="mt-1 font-mono text-xs">
-                {state.noEncontrados?.join(", ")}
-                {state.totalNoEncontrados >
-                  (state.noEncontrados?.length ?? 0) &&
-                  ` … y ${
-                    state.totalNoEncontrados - (state.noEncontrados?.length ?? 0)
-                  } más`}
-              </p>
-            </div>
-          )}
-        </div>
-      )}
-
-      <Button type="submit" disabled={pending} className="w-fit">
-        {pending ? "Actualizando..." : "Actualizar precios"}
+      <Button type="submit" disabled={pendingPreview} className="w-fit">
+        {pendingPreview ? "Leyendo archivo..." : "Ver cambios"}
       </Button>
     </form>
   );
