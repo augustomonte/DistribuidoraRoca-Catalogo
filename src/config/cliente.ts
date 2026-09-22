@@ -166,10 +166,14 @@ export const cliente: ConfigCliente = {
 };
 
 /**
- * Etiqueta de la opción de facturación de un producto ("IVA 21%",
- * "Precio directo"...), o null si todavía no tiene ninguna.
+ * Etiqueta de la opción de facturación de un producto, para mostrar junto
+ * al precio. La 3 ("precio directo") se muestra como el número solo: no
+ * hay porcentaje que informar, así que "Precio directo" no agrega nada
+ * que el cliente necesite ver. Las demás muestran su alícuota ("IVA 21%").
+ * Devuelve null si el producto todavía no tiene ninguna opción cargada.
  */
 export function etiquetaFacturacion(opcion: number | null): string | null {
   if (opcion === null) return null;
+  if (opcion === 3) return "3";
   return cliente.facturacion.opciones[opcion as OpcionFacturacion] ?? null;
 }
