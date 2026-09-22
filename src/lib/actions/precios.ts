@@ -459,5 +459,11 @@ export async function exportarCatalogo(): Promise<
     if (data.length < LOTE_LECTURA) break;
   }
 
+  // Se pagina por código (arriba) para que .range() dé un orden estable
+  // entre páginas, pero lo que el admin quiere ver es la lista A-Z por
+  // nombre. localeCompare con locale "es" ordena bien acentos y ñ (un
+  // sort() a secas los manda al final, después de la Z).
+  filas.sort((a, b) => a.nombre.localeCompare(b.nombre, "es"));
+
   return { ok: true, filas };
 }
