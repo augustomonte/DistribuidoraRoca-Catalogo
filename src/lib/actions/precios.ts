@@ -412,3 +412,52 @@ export async function confirmarPreciosMasivo(
 
   return { ok: true, actualizados };
 }
+
+export interface FilaCatalogo {
+  codigo: string;
+  nombre: string;
+  precio: number;
+  opcionFacturacion: number | null;
+  precioActualizadoEn: string;
+}
+
+const LOTE_LECTURA = 1000; // tope de filas por consulta de Supabase (PostgREST).
+
+/**
+ * Trae TODO el catálogo (activos e inactivos: es una herramienta de
+ * administración, no la vidriera pública) para exportarlo a Excel desde
+ * el cliente. Se pagina con .range() porque Supabase no devuelve más de
+ * 1000 filas por consulta.
+ */
+export async function exportarCatalogo(): Promise<
+  { ok: true; filas: FilaCatalogo[] } | { ok: false; error: string }
+> {
+  await requireAdmin();
+
+  const supabase = await createClient();
+  const filas: FilaCatalogo[] = [];
+
+  for (let desde = 0; ; desde += LOTE_LECTURA) {
+    const { data, error } = await supabase
+      .from("productos")
+      .select("codigo, nombre, precio_lista2, opcion_facturacion, precio_actualizado_en")
+      .order("codigo")
+      .range(desde, desde + LOTE_LECTURA - 1);
+
+    if (error) return { ok: false, error: error.message };
+
+    filas.push(
+      ...data.map((p) => ({
+        codigo: p.codigo,
+        nombre: p.nombre,
+        precio: p.precio_lista2,
+        opcionFacturacion: p.opcion_facturacion,
+        precioActualizadoEn: p.precio_actualizado_en,
+      }))
+    );
+
+    if (data.length < LOTE_LECTURA) break;
+  }
+
+  return { ok: true, filas };
+}

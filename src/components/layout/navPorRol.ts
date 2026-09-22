@@ -34,7 +34,7 @@ export function obtenerNavPorRol(rol: RolUsuario): GrupoNav[] {
               label: "Categorías",
               icono: "categorias",
             },
-            { href: "/admin/precios", label: "Precios", icono: "precios" },
+            { href: "/admin/precios", label: "Lista", icono: "precios" },
           ],
         },
         {
