@@ -13,7 +13,6 @@ interface ItemPrecio {
   opcion: number | null;
 }
 
-const MAX_PREVIEW_FILAS = 100;
 const MAX_NO_ENCONTRADOS_MOSTRADOS = 50;
 const LOTE_BUSQUEDA = 300;
 const LOTES_EN_PARALELO = 4;
@@ -43,6 +42,11 @@ function normalizarPrecio(valor: unknown): number | null {
 
   const numero = Number(texto);
   return Number.isFinite(numero) && numero > 0 ? numero : null;
+}
+
+/** Compara dos precios redondeando a centavos, para no marcar como "cambio" un ruido de punto flotante (2755.5 vs 2755.4999999999995). */
+function mismoPrecio(a: number, b: number): boolean {
+  return Math.round(a * 100) === Math.round(b * 100);
 }
 
 /**
@@ -177,11 +181,27 @@ export interface FilaPreview {
 export interface PreviewPreciosState {
   error?: string;
   ok?: boolean;
-  /** El set completo a mandar de vuelta si se confirma (solo los que matchean). */
+  /**
+   * El set completo a mandar de vuelta si se confirma: incluye tanto los
+   * que cambian de precio como los que solo cambian de opción de
+   * facturación con el mismo precio (la opción se actualiza siempre que
+   * el Excel la traiga, haya cambiado el precio o no).
+   */
   items?: ItemPrecio[];
-  /** Recorte para mostrar en pantalla; puede ser menor a totalMatcheados. */
-  preview?: FilaPreview[];
-  totalMatcheados?: number;
+  /**
+   * Solo los que cambian de precio (suben o bajan) — la lista que se
+   * muestra en pantalla y se puede exportar a Excel. Completa, sin
+   * recortar: la tabla la recorta al mostrarla, no el servidor.
+   */
+  cambiosDePrecio?: FilaPreview[];
+  /** items.length: cuántos productos se van a tocar en total al confirmar. */
+  totalActualizados?: number;
+  /** cambiosDePrecio.length. */
+  totalCambiosDePrecio?: number;
+  /** De totalActualizados, cuántos son solo por la opción de facturación (mismo precio). */
+  totalSoloOpcion?: number;
+  /** Coincidieron con un producto, pero ni el precio ni la opción cambiaron: no se tocan. */
+  totalSinCambios?: number;
   noEncontrados?: string[];
   totalNoEncontrados?: number;
   filasInvalidas?: number;
@@ -240,14 +260,18 @@ export async function previsualizarPreciosMasivo(
     lotes.push(codigos.slice(i, i + LOTE_BUSQUEDA));
   }
 
-  const productos: { codigo: string; nombre: string; precio_lista2: number }[] =
-    [];
+  const productos: {
+    codigo: string;
+    nombre: string;
+    precio_lista2: number;
+    opcion_facturacion: number | null;
+  }[] = [];
   for (let i = 0; i < lotes.length; i += LOTES_EN_PARALELO) {
     const resultados = await Promise.all(
       lotes.slice(i, i + LOTES_EN_PARALELO).map((lote) =>
         supabase
           .from("productos")
-          .select("codigo, nombre, precio_lista2")
+          .select("codigo, nombre, precio_lista2, opcion_facturacion")
           .in("codigo", lote)
       )
     );
@@ -259,9 +283,15 @@ export async function previsualizarPreciosMasivo(
 
   const mapaProductos = new Map(productos.map((p) => [p.codigo, p]));
 
-  const itemsMatcheados: ItemPrecio[] = [];
-  const preview: FilaPreview[] = [];
+  // Solo se toca lo que de verdad cambia. Un producto puede cambiar de
+  // precio, de opción de facturación, de ambas cosas, o de ninguna (en
+  // ese caso ni se manda al RPC). "Cambios de precio" es la lista que se
+  // muestra y se puede exportar; incluye también los que además cambian
+  // de opción, porque siguen siendo un cambio de precio.
+  const itemsParaActualizar: ItemPrecio[] = [];
+  const cambiosDePrecio: FilaPreview[] = [];
   const noEncontrados: string[] = [];
+  let totalSinCambios = 0;
 
   for (const item of items) {
     const producto = mapaProductos.get(item.codigo);
@@ -269,9 +299,19 @@ export async function previsualizarPreciosMasivo(
       noEncontrados.push(item.codigo);
       continue;
     }
-    itemsMatcheados.push(item);
-    if (preview.length < MAX_PREVIEW_FILAS) {
-      preview.push({
+
+    const precioCambia = !mismoPrecio(item.precio, producto.precio_lista2);
+    const opcionCambia =
+      item.opcion !== null && item.opcion !== producto.opcion_facturacion;
+
+    if (!precioCambia && !opcionCambia) {
+      totalSinCambios++;
+      continue;
+    }
+
+    itemsParaActualizar.push(item);
+    if (precioCambia) {
+      cambiosDePrecio.push({
         codigo: item.codigo,
         nombre: producto.nombre,
         precioActual: producto.precio_lista2,
@@ -281,18 +321,23 @@ export async function previsualizarPreciosMasivo(
     }
   }
 
-  if (itemsMatcheados.length === 0) {
+  if (itemsParaActualizar.length === 0) {
     return {
       error:
-        "Ninguno de los códigos del archivo coincide con un producto existente.",
+        noEncontrados.length === items.length
+          ? "Ninguno de los códigos del archivo coincide con un producto existente."
+          : "Ningún producto tiene cambios: ni el precio ni la opción de facturación difieren de lo que ya está guardado.",
     };
   }
 
   return {
     ok: true,
-    items: itemsMatcheados,
-    preview,
-    totalMatcheados: itemsMatcheados.length,
+    items: itemsParaActualizar,
+    cambiosDePrecio,
+    totalActualizados: itemsParaActualizar.length,
+    totalCambiosDePrecio: cambiosDePrecio.length,
+    totalSoloOpcion: itemsParaActualizar.length - cambiosDePrecio.length,
+    totalSinCambios,
     noEncontrados: noEncontrados.slice(0, MAX_NO_ENCONTRADOS_MOSTRADOS),
     totalNoEncontrados: noEncontrados.length,
     filasInvalidas,
