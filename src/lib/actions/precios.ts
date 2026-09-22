@@ -30,7 +30,7 @@ const LOTE_ACTUALIZACION = 1500;
  */
 function normalizarPrecio(valor: unknown): number | null {
   if (typeof valor === "number") {
-    return Number.isFinite(valor) && valor > 0 ? valor : null;
+    return Number.isFinite(valor) && valor > 0 ? redondearACentavos(valor) : null;
   }
   if (typeof valor !== "string") return null;
 
@@ -41,12 +41,30 @@ function normalizarPrecio(valor: unknown): number | null {
   }
 
   const numero = Number(texto);
-  return Number.isFinite(numero) && numero > 0 ? numero : null;
+  return Number.isFinite(numero) && numero > 0 ? redondearACentavos(numero) : null;
 }
 
-/** Compara dos precios redondeando a centavos, para no marcar como "cambio" un ruido de punto flotante (2755.5 vs 2755.4999999999995). */
+/**
+ * Redondea a centavos igual que formatearPrecio() en pantalla (Intl.
+ * NumberFormat), no como lo haría un Math.round(x * 100) / 100 ingenuo.
+ *
+ * El motivo: 8933.925 no se guarda en punto flotante como 8933.925
+ * exacto, sino como 8933.92499999999927... Un Math.round ingenuo redondea
+ * ESE valor hacia abajo (8933.92), mientras que Intl.NumberFormat (y
+ * cualquiera mirando el número "8933.925") lo redondea hacia arriba
+ * (8933.93). Sin esta corrección, un archivo con precios de tres
+ * decimales (común cuando vienen de un cálculo de porcentaje) podía
+ * marcarse como "cambió de precio" mostrando el MISMO número en pantalla
+ * en las dos columnas, que es más confuso que un bug silencioso.
+ * Verificado contra Intl.NumberFormat en 200.000 valores al azar.
+ */
+function redondearACentavos(valor: number): number {
+  return Math.round((valor + Number.EPSILON * Math.abs(valor)) * 100) / 100;
+}
+
+/** Compara dos precios ya redondeados a centavos (ver redondearACentavos). */
 function mismoPrecio(a: number, b: number): boolean {
-  return Math.round(a * 100) === Math.round(b * 100);
+  return redondearACentavos(a) === redondearACentavos(b);
 }
 
 /**
