@@ -62,8 +62,8 @@ export function DescargarCatalogoExcel() {
           Descargar catálogo completo
         </h2>
         <p className="mt-1 text-sm text-tema-tinta/60">
-          Todos los productos (activos e inactivos), con código, nombre,
-          precio, opción de facturación y última actualización de precio.
+          Todo el catálogo, con código, nombre, precio, opción de
+          facturación y última actualización de precio.
         </p>
       </div>
       <div className="flex items-center gap-3">

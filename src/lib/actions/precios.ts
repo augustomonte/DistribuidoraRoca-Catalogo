@@ -187,6 +187,15 @@ async function requireAdmin() {
   return perfil;
 }
 
+/** Cualquier rol logueado (admin, vendedor o cliente). Para exportarCatalogo(). */
+async function requireSesion() {
+  const perfil = await getPerfilActual();
+  if (!perfil) {
+    throw new Error("No autorizado");
+  }
+  return perfil;
+}
+
 export interface FilaPreview {
   codigo: string;
   nombre: string;
@@ -424,25 +433,41 @@ export interface FilaCatalogo {
 const LOTE_LECTURA = 1000; // tope de filas por consulta de Supabase (PostgREST).
 
 /**
- * Trae TODO el catálogo (activos e inactivos: es una herramienta de
- * administración, no la vidriera pública) para exportarlo a Excel desde
- * el cliente. Se pagina con .range() porque Supabase no devuelve más de
- * 1000 filas por consulta.
+ * Trae el catálogo para exportarlo a Excel desde el cliente. Se pagina con
+ * .range() porque Supabase no devuelve más de 1000 filas por consulta.
+ *
+ * Admin, vendedor y cliente pueden bajar la lista, pero no de la misma
+ * fuente: la tabla productos (activos e inactivos) solo la puede leer
+ * admin y vendedor — la RLS "productos_select_admin_vendedor" le niega el
+ * select a cliente. Por eso admin lee de productos, y vendedor/cliente
+ * leen de productos_vista (que ya filtra activo = true), la misma fuente
+ * que usa el catálogo que navegan: no ven ningún producto que no vean ya
+ * ahí, solo lo tienen junto en un Excel.
  */
 export async function exportarCatalogo(): Promise<
   { ok: true; filas: FilaCatalogo[] } | { ok: false; error: string }
 > {
-  await requireAdmin();
+  const perfil = await requireSesion();
 
   const supabase = await createClient();
   const filas: FilaCatalogo[] = [];
 
   for (let desde = 0; ; desde += LOTE_LECTURA) {
-    const { data, error } = await supabase
-      .from("productos")
-      .select("codigo, nombre, precio_lista2, opcion_facturacion, precio_actualizado_en")
-      .order("codigo")
-      .range(desde, desde + LOTE_LECTURA - 1);
+    const hasta = desde + LOTE_LECTURA - 1;
+    const { data, error } =
+      perfil.rol === "admin"
+        ? await supabase
+            .from("productos")
+            .select(
+              "codigo, nombre, precio_lista2, opcion_facturacion, precio_actualizado_en"
+            )
+            .order("codigo")
+            .range(desde, hasta)
+        : await supabase
+            .from("productos_vista")
+            .select("codigo, nombre, precio, opcion_facturacion, precio_actualizado_en")
+            .order("codigo")
+            .range(desde, hasta);
 
     if (error) return { ok: false, error: error.message };
 
@@ -450,7 +475,7 @@ export async function exportarCatalogo(): Promise<
       ...data.map((p) => ({
         codigo: p.codigo,
         nombre: p.nombre,
-        precio: p.precio_lista2,
+        precio: "precio_lista2" in p ? p.precio_lista2 : p.precio,
         opcionFacturacion: p.opcion_facturacion,
         precioActualizadoEn: p.precio_actualizado_en,
       }))

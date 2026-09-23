@@ -68,6 +68,7 @@ export function obtenerNavPorRol(rol: RolUsuario): GrupoNav[] {
               icono: "clientes",
             },
             { href: "/pedidos", label: "Pedidos", icono: "pedidos" },
+            { href: "/lista", label: "Lista", icono: "precios" },
           ],
         },
       ];
@@ -79,6 +80,7 @@ export function obtenerNavPorRol(rol: RolUsuario): GrupoNav[] {
             { href: "/catalogo", label: "Catálogo", icono: "catalogo" },
             { href: "/carrito", label: "Carrito", icono: "carrito" },
             { href: "/pedidos", label: "Mis pedidos", icono: "pedidos" },
+            { href: "/lista", label: "Lista", icono: "precios" },
           ],
         },
       ];

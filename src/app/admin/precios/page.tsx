@@ -1,5 +1,5 @@
 import { ActualizarPreciosForm } from "@/components/admin/ActualizarPreciosForm";
-import { DescargarCatalogoExcel } from "@/components/admin/DescargarCatalogoExcel";
+import { DescargarCatalogoExcel } from "@/components/lista/DescargarCatalogoExcel";
 
 export default function ListaPage() {
   return (
