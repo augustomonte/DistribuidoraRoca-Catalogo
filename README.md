@@ -1,8 +1,8 @@
 # Catálogo mayorista B2B
 
-Catálogo web para distribuidoras mayoristas: catálogo con precios según
-quién consulta, ABM de productos/marcas/categorías, alta de vendedores y
-clientes, y búsqueda con ranking por relevancia.
+Catálogo web para distribuidoras mayoristas: catálogo con actualización
+masiva de precios desde Excel, ABM de productos/marcas/categorías, alta
+de vendedores y clientes, y búsqueda con ranking por relevancia.
 
 Hecho con Next.js 16 (App Router), React 19, Tailwind 4 y Supabase
 (Postgres + Auth + Storage).
@@ -18,19 +18,50 @@ más abajo.
 
 La tabla `perfiles` tiene tres roles (`rol_usuario` en Postgres):
 
-| Rol | Ve | Precio que le muestra `productos_vista` |
-|---|---|---|
-| `admin` | Todo: ABM de productos, marcas, categorías, usuarios | `precio_acordado` (reservado) |
-| `vendedor` | El catálogo, y solo los clientes que él mismo dio de alta | `precio_acordado` (reservado) |
-| `cliente` | Solo el catálogo | `precio_lista2` (público) |
+| Rol | Ve |
+|---|---|
+| `admin` | Todo: ABM de productos, marcas, categorías, usuarios, y la Lista completa (descarga + carga masiva de precios) |
+| `vendedor` | El catálogo, solo los clientes que él mismo dio de alta, y la Lista de solo lectura |
+| `cliente` | El catálogo, su carrito y sus pedidos, y la Lista de solo lectura |
 
-La vista `productos_vista` (ver `supabase/schema.sql`) es la única forma
-en que un `cliente` puede leer productos: la tabla `productos` cruda,
-con `precio_acordado` incluido, tiene RLS que la bloquea para ese rol.
+El precio es uno solo (`productos.precio_lista2`), el mismo para los
+tres roles — no hay un precio "reservado" aparte para admin/vendedor.
+Lo que sí es por producto es la **opción de facturación**
+(`productos.opcion_facturacion`: 1, 2 o 3), que define bajo qué
+condición se factura. Sus etiquetas ("IVA 21%", "IVA 10,5%", "Precio
+directo" para Roca) no están hardcodeadas: se configuran en
+`cliente.facturacion.opciones`, en `src/config/cliente.ts`.
+
+La vista `productos_vista` (ver `supabase/schema.sql` y
+`supabase/migrations/0013_precio_unico_opcion_facturacion.sql`) es la
+única forma en que un `cliente` puede leer productos: la tabla
+`productos` cruda tiene RLS que le niega el `select` a ese rol (sí se lo
+permite a `admin` y a `vendedor`).
 
 La etiqueta con la que se llama al rol `cliente` en la interfaz (ej.
 "Ferreterías" para Roca) es configurable por cliente — ver
 `cliente.etiquetas` en `src/config/cliente.ts`.
+
+## Lista de precios (Excel)
+
+En `/admin/precios` (pestaña **Lista** del panel admin) el admin puede:
+
+- **Descargar el catálogo completo** a `.xlsx` — activos e inactivos,
+  ordenado A-Z por nombre — con las columnas `CODIGO`, `DESCRIPCION`,
+  `PRECIO`, `OPCION_FACTURACION` y `ULTIMA_ACTUALIZACION`.
+- **Subir un Excel o CSV** (columnas `codigo`, `precio` y, opcional,
+  `opcion_facturacion`) para actualizar precios en masa. Antes de tocar
+  la base muestra una vista previa que solo incluye lo que de verdad
+  cambia — el precio, la opción de facturación, o ambos — separando los
+  productos que suben o bajan de precio (esa lista se puede exportar a
+  Excel aparte) de los que solo cambian de opción de facturación. Lo
+  que ya está igual no se toca ni pisa la fecha de
+  `precio_actualizado_en`. Ver `src/lib/actions/precios.ts`.
+
+`vendedor` y `cliente` tienen la misma pestaña en `/lista`, pero solo
+con la descarga (sin la carga masiva) y limitada a productos activos:
+leen de `productos_vista`, no de la tabla `productos` cruda, porque la
+RLS se lo bloquea a `cliente`.
 
 ## Empezar en local
 
@@ -90,7 +121,7 @@ olvido. Ver `src/lib/dev-sin-login.ts`.
 | `npm run build` | Build de producción |
 | `npm run start` | Sirve el build de producción |
 | `npm run lint` | ESLint |
-| `npx tsx scripts/import-productos.ts [ruta.xlsx]` | Importa productos desde el Excel maestro. El mapeo de columnas es específico del Excel de Roca — ver el comentario al inicio del script antes de usarlo con otro cliente |
+| `npx tsx scripts/import-productos.ts [ruta.xlsx]` | Importa productos desde el Excel maestro. El mapeo de columnas es específico del Excel de Roca — ver el comentario al inicio del script antes de usarlo con otro cliente. Es anterior a `opcion_facturacion`: no la completa, así que un producto recién importado queda sin ella hasta la primera actualización desde **Lista** |
 
 ## Estructura
 
@@ -100,6 +131,8 @@ src/
     admin/        Panel admin: productos, marcas, categorías, usuarios
     vendedor/     Panel vendedor: catálogo + sus clientes
     catalogo/     Catálogo (compartido por los 3 roles vía CatalogoView)
+    lista/        Descarga del catálogo a Excel (vendedor y cliente;
+                  admin usa /admin/precios, con la carga además)
     perfil/       Editar datos propios, cambiar contraseña
     login/, recuperar-contrasena/, actualizar-contrasena/, auth/confirmar/
     empresa/      Página pública "Nuestra empresa"
@@ -120,8 +153,8 @@ scripts/
 ## Poner esto a nombre de otro cliente
 
 1. `src/config/cliente.ts`: nombre, logos, contacto, sucursales, textos,
-   alícuotas de IVA, política de precio acordado, etiqueta del rol
-   `cliente` y flags de features.
+   opciones de facturación (`cliente.facturacion.opciones`), etiqueta
+   del rol `cliente` y flags de features.
 2. `src/app/globals.css`, bloque "Identidad visual": los 6 colores
    (`--color-tema-*`). El resto del código solo usa esos nombres
    semánticos, nunca un color literal.
